@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+{% block title %}Setup{% endblock %}
+{% block page_title %}Auction Setup{% endblock %}
+{% block page_subtitle %}Local multi · room codes · public play{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-4">
+    <div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-6">
+        <div class="flex items-center gap-2 mb-5 text-[0.7rem] uppercase tracking-wider text-[var(--text-muted)]" id="step-dots"></div>
+        <div id="wizard-body"></div>
+        <p id="setup-error" class="text-red-600 text-sm mt-3 hidden"></p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let STEP = 1;
+let PLAY_MODE = null; // solo | multi_local | multi_room | join_room
+let AUCTION_MODE = null; // all_stars | standard
+let NUM_TEAMS = 4;
+let POOL_SEED = null;
+let PLAYERS_META = null;
+let ROOM_CODE = localStorage.getItem('ipl_room_code') || '';
+let CLIENT_ID = localStorage.getItem('ipl_client_id') || '';
+let PLAYER_NAME = localStorage.getItem('ipl_player_name') || '';
+let LOBBY_TIMER = null;
+
+function ensureClientId() {
+    if (!CLIENT_ID) {
+        CLIENT_ID = 'c_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+        localStorage.setItem('ipl_client_id', CLIENT_ID);
+    }
+    return CLIENT_ID;
+}
+
+document.addEventListener('DOMContentLoaded', async function() {
+    ensureClientId();
+    try { PLAYERS_META = await fetchJSON('/api/players'); }
+    catch (e) { PLAYERS_META = { min_teams: 2, max_teams: 8 }; }
+    renderWizard();
+});
+
+function renderWizard() {
+    clearInterval(LOBBY_TIMER);
+    LOBBY_TIMER = null;
+    const dots = document.getElementById('step-dots');
+    let steps = ['Mode'];
+    if (PLAY_MODE === 'join_room') steps = ['Mode', 'Join', 'Lobby'];
+    else if (PLAY_MODE === 'multi_room') steps = ['Mode', 'Pool', 'Teams', 'Room'];
+    else if (PLAY_MODE === 'multi_local') steps = ['Mode', 'Pool', 'Teams', 'Ready'];
+    else if (PLAY_MODE === 'solo') steps = ['Mode', 'Pool', 'Ready'];
+    const idx = Math.min(STEP, steps.length) - 1;
+    dots.innerHTML = steps.map((s, i) =>
+        '<span class="' + (i === idx ? 'text-auction-gold font-bold' : '') + '">' + s + '</span>' +
+        (i < steps.length - 1 ? '<span>·</span>' : '')
+    ).join('');
+
+    const body = document.getElementById('wizard-body');
+    if (STEP === 1) body.innerHTML = stepMode();
+    else if (PLAY_MODE === 'join_room' && STEP === 2) body.innerHTML = stepJoin();
+    else if (PLAY_MODE === 'join_room' && STEP >= 3) { body.innerHTML = stepLobby(); startLobbyPoll(); }
+    else if (STEP === 2) body.innerHTML = stepPool();
+    else if (STEP === 3 && (PLAY_MODE === 'multi_local' || PLAY_MODE === 'multi_room')) body.innerHTML = stepTeams();
+    else if (PLAY_MODE === 'multi_room' && STEP >= 4) body.innerHTML = stepRoomHost();
+    else body.innerHTML = stepReady();
+}
+
+function cardBtn(onclick, icon, title, sub, active) {
+    return '<button type="button" onclick="' + onclick + '" class="w-full text-left px-4 py-4 rounded-xl border transition-colors mb-3 ' +
+        (active ? 'border-auction-gold bg-amber-50/50 dark:bg-amber-950/20' : 'border-[var(--border)] hover:border-auction-gold') + '">' +
+        '<div class="flex items-start gap-3"><span class="material-icons text-auction-gold">' + icon + '</span>' +
+        '<div><div class="font-bold text-sm">' + title + '</div>' +
+        '<div class="text-xs text-[var(--text-secondary)] mt-0.5">' + sub + '</div></div></div></button>';
+}
+
+function stepMode() {
+    return '<h2 class="display-font text-3xl text-[var(--accent)] mb-1">HOW ARE YOU PLAYING?</h2>' +
+        '<p class="text-sm text-[var(--text-secondary)] mb-5">Public multiplayer is live. Single player is still being tuned.</p>' +
+        disabledCard('smart_toy', 'Single player', 'You vs CPU — Developing (coming soon)') +
+        cardBtn("chooseMode('multi_local')", 'groups', 'Multiplayer (locally)', 'Same screen / party mode — anyone can bid for any team', PLAY_MODE === 'multi_local') +
+        cardBtn("chooseMode('multi_room')", 'vpn_key', 'Multiplayer (create a room code)', 'You host · share code · friends join on their devices', PLAY_MODE === 'multi_room') +
+        cardBtn("chooseMode('join_room')", 'login', 'Join a room', 'Enter a room code from the host', PLAY_MODE === 'join_room') +
+        navRow(false, !!PLAY_MODE);
+}
+
+function disabledCard(icon, title, sub) {
+    return '<div class="w-full text-left px-4 py-4 rounded-xl border border-dashed border-[var(--border)] mb-3 opacity-70 cursor-not-allowed">' +
+        '<div class="flex items-start gap-3"><span class="material-icons text-[var(--text-muted)]">' + icon + '</span>' +
+        '<div><div class="font-bold text-sm flex items-center gap-2">' + title +
+        '<span class="text-[0.65rem] px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200">DEVELOPING</span></div>' +
+        '<div class="text-xs text-[var(--text-secondary)] mt-0.5">' + sub + '</div></div></div></div>';
+}
+
+function stepPool() {
+    return '<h2 class="display-font text-3xl text-[var(--accent)] mb-1">WHICH POOL?</h2>' +
+        '<p class="text-sm text-[var(--text-secondary)] mb-5">Names show on the auction floor after start.</p>' +
+        cardBtn("choosePool('all_stars')", 'star', 'All Stars auction', 'Kohli, Rohit, Dhoni & more · 2 Cr base', AUCTION_MODE === 'all_stars') +
+        cardBtn("choosePool('standard')", 'shuffle', 'Shuffled IPL pool', 'Balanced list · uncapped = teams × 5', AUCTION_MODE === 'standard') +
+        navRow(true, !!AUCTION_MODE);
+}
+
+function stepTeams() {
+    const minT = (PLAYERS_META && PLAYERS_META.min_teams) || 2;
+    const maxT = (PLAYERS_META && PLAYERS_META.max_teams) || 8;
+    let btns = '';
+    for (let i = minT; i <= maxT; i++) {
+        btns += '<button type="button" onclick="NUM_TEAMS=' + i + ';renderWizard()" class="w-10 h-10 rounded-lg text-sm font-bold border ' +
+            (i === NUM_TEAMS ? 'bg-auction-navy text-white border-auction-navy' : 'border-[var(--border)]') + '">' + i + '</button>';
+    }
+    let names = '';
+    for (let i = 1; i <= NUM_TEAMS; i++) {
+        const el = document.getElementById('team-name-' + i);
+        const val = el ? el.value.replace(/"/g, '&quot;') : '';
+        names += '<div class="mb-2"><label class="text-xs text-[var(--text-muted)]">Team ' + i + '</label>' +
+            '<input id="team-name-' + i + '" type="text" placeholder="Team ' + i + '" value="' + val + '" ' +
+            'class="w-full mt-0.5 px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--bg-page)] text-sm" /></div>';
+    }
+    return '<h2 class="display-font text-3xl text-[var(--accent)] mb-1">TEAMS</h2>' +
+        '<p class="text-sm text-[var(--text-secondary)] mb-3">Pool ~' + (NUM_TEAMS * 30) + ' · uncapped ' + (NUM_TEAMS * 5) + ' (shuffled).</p>' +
+        '<div class="flex flex-wrap gap-2 mb-4">' + btns + '</div>' + names + navRow(true, true);
+}
+
+function stepReady() {
+    const solo = PLAY_MODE === 'solo';
+    const teams = solo ? 2 : NUM_TEAMS;
+    return '<h2 class="display-font text-3xl text-[var(--accent)] mb-1">READY</h2>' +
+        '<div class="rounded-xl bg-[var(--bg-elevated)] p-4 text-sm space-y-2 mb-4">' +
+        '<div><strong>Mode:</strong> ' + (solo ? 'Single player' : 'Multiplayer (local)') + '</div>' +
+        '<div><strong>Pool:</strong> ' + (AUCTION_MODE === 'all_stars' ? 'All Stars' : 'Shuffled IPL') + '</div>' +
+        '<div><strong>Teams:</strong> ' + teams + '</div></div>' +
+        '<ol class="text-xs text-[var(--text-secondary)] space-y-1.5 list-decimal list-inside mb-5">' +
+        '<li>Order: Marquee → Capped → Uncapped (Batter → WK → AR → Bowler)</li>' +
+        '<li>Bid, then hammer SOLD / UNSOLD</li>' +
+        '<li>Use Auction roadmap to peek ahead</li></ol>' +
+        navRow(true, false) +
+        '<button onclick="startLocalAuction()" class="w-full mt-3 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-auction-gold text-slate-900 font-bold text-sm">' +
+        '<span class="material-icons text-base">gavel</span> Start Auction</button>';
+}
+
+function stepJoin() {
+    return '<h2 class="display-font text-3xl text-[var(--accent)] mb-1">JOIN ROOM</h2>' +
+        '<label class="text-xs text-[var(--text-muted)]">Your name</label>' +
+        '<input id="join-name" type="text" value="' + escapeAttr(PLAYER_NAME) + '" placeholder="Your name" class="w-full mt-0.5 mb-3 px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--bg-page)] text-sm" />' +
+        '<label class="text-xs text-[var(--text-muted)]">Room code</label>' +
+        '<input id="join-code" type="text" value="' + escapeAttr(ROOM_CODE) + '" placeholder="e.g. K7M2Q" class="w-full mt-0.5 mb-4 px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--bg-page)] text-sm uppercase tracking-widest font-bold" />' +
+        navRow(true, false) +
+        '<button onclick="joinRoom()" class="w-full mt-3 px-4 py-3 rounded-lg bg-auction-navy text-white font-bold text-sm">Join lobby</button>';
+}
+
+function stepLobby() {
+    return '<h2 class="display-font text-3xl text-[var(--accent)] mb-1">LOBBY</h2>' +
+        '<p class="text-sm mb-2">Room <strong class="tracking-widest text-auction-gold">' + escapeHtml(ROOM_CODE) + '</strong></p>' +
+        '<p class="text-xs text-[var(--text-muted)] mb-4" id="lobby-status">Waiting for host to start…</p>' +
+        '<div id="lobby-claims" class="space-y-2 mb-4"></div>' +
+        navRow(true, false);
+}
+
+function stepRoomHost() {
+    return '<h2 class="display-font text-3xl text-[var(--accent)] mb-1">YOUR ROOM</h2>' +
+        '<label class="text-xs text-[var(--text-muted)]">Host display name</label>' +
+        '<input id="host-name" type="text" value="' + escapeAttr(PLAYER_NAME || 'Host') + '" class="w-full mt-0.5 mb-4 px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--bg-page)] text-sm" />' +
+        '<p class="text-xs text-[var(--text-secondary)] mb-3">Create a code, share it, then start. Friends use <strong>Join a room</strong> on their devices.</p>' +
+        (ROOM_CODE
+            ? ('<div class="rounded-xl bg-[var(--bg-elevated)] p-4 mb-4 text-center">' +
+               '<div class="text-xs text-[var(--text-muted)] mb-1">Share this code</div>' +
+               '<div class="display-font text-4xl tracking-widest text-auction-gold">' + escapeHtml(ROOM_CODE) + '</div></div>' +
+               '<button onclick="startRoomAuction()" class="w-full px-4 py-3 rounded-lg bg-auction-gold text-slate-900 font-bold text-sm">Start auction for room</button>')
+            : '<button onclick="createRoom()" class="w-full px-4 py-3 rounded-lg bg-auction-navy text-white font-bold text-sm">Create room code</button>') +
+        '<div class="mt-3">' + navRow(true, false) + '</div>';
+}
+
+function navRow(showBack, showNext) {
+    let html = '<div class="flex gap-2 mt-2">';
+    if (showBack) html += '<button type="button" onclick="goBack()" class="px-4 py-2 rounded-lg border border-[var(--border)] text-sm font-semibold">Back</button>';
+    if (showNext) html += '<button type="button" onclick="goNext()" class="ml-auto px-4 py-2 rounded-lg bg-auction-navy text-white text-sm font-bold">Next</button>';
+    return html + '</div>';
+}
+
+function chooseMode(m) {
+    if (m === 'solo') { toast('Single player is still developing', true); return; }
+    PLAY_MODE = m; ROOM_CODE = ''; localStorage.removeItem('ipl_room_code'); renderWizard();
+}
+function choosePool(m) { AUCTION_MODE = m; renderWizard(); }
+
+function goBack() {
+    if (STEP === 1) return;
+    if (PLAY_MODE === 'solo' && STEP === 4) { STEP = 2; renderWizard(); return; }
+    if (PLAY_MODE === 'join_room' && STEP === 3) { STEP = 2; renderWizard(); return; }
+    STEP = Math.max(1, STEP - 1);
+    renderWizard();
+}
+
+function goNext() {
+    if (STEP === 1 && !PLAY_MODE) return;
+    if (STEP === 1 && PLAY_MODE === 'join_room') { STEP = 2; renderWizard(); return; }
+    if (STEP === 2 && !AUCTION_MODE && PLAY_MODE !== 'join_room') return;
+    if (STEP === 2 && PLAY_MODE === 'solo') { STEP = 4; renderWizard(); return; }
+    STEP += 1;
+    renderWizard();
+}
+
+function collectNames() {
+    const names = [];
+    for (let i = 1; i <= NUM_TEAMS; i++) {
+        const el = document.getElementById('team-name-' + i);
+        names.push(el ? (el.value || '').trim() : '');
+    }
+    return names;
+}
+
+function showErr(msg) {
+    const err = document.getElementById('setup-error');
+    err.textContent = msg;
+    err.classList.remove('hidden');
+    toast(msg, true);
+}
+
+async function startLocalAuction() {
+    document.getElementById('setup-error').classList.add('hidden');
+    if (PLAY_MODE === 'solo') return showErr('Single player is still developing');
+    const solo = false;
+    const numTeams = NUM_TEAMS;
+    const names = collectNames();
+    localStorage.removeItem('ipl_room_code');
+    try {
+        await fetchJSON('/api/start', {
+            method: 'POST',
+            body: JSON.stringify({
+                num_teams: numTeams,
+                team_names: names,
+                seed: POOL_SEED,
+                mode: AUCTION_MODE || 'standard',
+                solo_mode: solo,
+                human_team_id: solo ? 1 : null,
+            }),
+        });
+        window.location.href = BASE_PATH + '/auction';
+    } catch (e) { showErr(e.message); }
+}
+
+async function createRoom() {
+    document.getElementById('setup-error').classList.add('hidden');
+    const name = (document.getElementById('host-name')?.value || 'Host').trim();
+    PLAYER_NAME = name;
+    localStorage.setItem('ipl_player_name', name);
+    try {
+        const data = await fetchJSON('/api/rooms/create', {
+            method: 'POST',
+            body: JSON.stringify({ client_id: ensureClientId(), name }),
+        });
+        ROOM_CODE = data.room_code;
+        localStorage.setItem('ipl_room_code', ROOM_CODE);
+        toast('Room ' + ROOM_CODE + ' created');
+        renderWizard();
+    } catch (e) { showErr(e.message); }
+}
+
+async function startRoomAuction() {
+    document.getElementById('setup-error').classList.add('hidden');
+    if (!ROOM_CODE) return showErr('Create a room first');
+    try {
+        await fetchJSON('/api/rooms/start', {
+            method: 'POST',
+            body: JSON.stringify({
+                room_code: ROOM_CODE,
+                client_id: ensureClientId(),
+                num_teams: NUM_TEAMS,
+                team_names: collectNames(),
+                seed: POOL_SEED,
+                mode: AUCTION_MODE || 'standard',
+            }),
+        });
+        window.location.href = BASE_PATH + '/auction?room=' + encodeURIComponent(ROOM_CODE);
+    } catch (e) { showErr(e.message); }
+}
+
+async function joinRoom() {
+    document.getElementById('setup-error').classList.add('hidden');
+    const name = (document.getElementById('join-name')?.value || '').trim();
+    const code = (document.getElementById('join-code')?.value || '').trim();
+    PLAYER_NAME = name;
+    localStorage.setItem('ipl_player_name', name);
+    try {
+        const data = await fetchJSON('/api/rooms/join', {
+            method: 'POST',
+            body: JSON.stringify({ room_code: code, client_id: ensureClientId(), name }),
+        });
+        ROOM_CODE = data.room_code;
+        localStorage.setItem('ipl_room_code', ROOM_CODE);
+        STEP = 3;
+        renderWizard();
+    } catch (e) { showErr(e.message); }
+}
+
+function startLobbyPoll() {
+    refreshLobby();
+    LOBBY_TIMER = setInterval(refreshLobby, 1500);
+}
+
+async function refreshLobby() {
+    if (!ROOM_CODE) return;
+    try {
+        const data = await fetchJSON('/api/state?room_code=' + encodeURIComponent(ROOM_CODE) + '&client_id=' + encodeURIComponent(ensureClientId()));
+        const s = data.state;
+        const statusEl = document.getElementById('lobby-status');
+        const box = document.getElementById('lobby-claims');
+        if (!statusEl || !box) return;
+        if (s.status === 'auction' || s.status === 'finished') {
+            statusEl.textContent = 'Auction live — claim a team, then open the floor.';
+            box.innerHTML = (s.teams || []).map(t => {
+                const claim = (s.room && s.room.claims && s.room.claims[t.id]) || null;
+                const mine = s.room && s.room.my_team_id === t.id;
+                let btn;
+                if (claim && !mine) btn = '<span class="text-xs text-[var(--text-muted)]">Taken by ' + escapeHtml(claim.name) + '</span>';
+                else if (mine) btn = '<span class="text-xs font-bold text-auction-gold">Your team</span>';
+                else btn = '<button onclick="claimTeam(' + t.id + ')" class="text-xs px-2 py-1 rounded bg-auction-navy text-white font-bold">Claim</button>';
+                return '<div class="flex items-center justify-between px-3 py-2 rounded-lg border border-[var(--border)]">' +
+                    '<span class="text-sm font-semibold">' + escapeHtml(t.name) + '</span>' + btn + '</div>';
+            }).join('') +
+            '<button onclick="window.location.href=BASE_PATH+\'/auction?room=' + encodeURIComponent(ROOM_CODE) + '\'" class="w-full mt-3 px-4 py-3 rounded-lg bg-auction-gold text-slate-900 font-bold text-sm">Go to Auction Floor</button>';
+        } else {
+            statusEl.textContent = 'Waiting for host to start… (' + ((s.room && s.room.client_count) || 1) + ' connected)';
+            box.innerHTML = '<p class="text-xs text-[var(--text-muted)]">Teams appear here after the host starts.</p>';
+        }
+    } catch (e) {
+        const statusEl = document.getElementById('lobby-status');
+        if (statusEl) statusEl.textContent = e.message;
+    }
+}
+
+async function claimTeam(teamId) {
+    try {
+        await fetchJSON('/api/rooms/claim', {
+            method: 'POST',
+            body: JSON.stringify({ room_code: ROOM_CODE, client_id: ensureClientId(), team_id: teamId }),
+        });
+        toast('Team claimed');
+        refreshLobby();
+    } catch (e) { showErr(e.message); }
+}
+
+function escapeHtml(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escapeAttr(str) { return escapeHtml(str); }
+</script>
+{% endblock %}

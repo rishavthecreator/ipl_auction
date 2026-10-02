@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Results{% endblock %}
+{% block page_title %}Final Squads{% endblock %}
+{% block page_subtitle %}Auction complete — sold & unsold{% endblock %}
+
+{% block content %}
+<div id="results-root">
+    <div class="flex items-center justify-center py-20 text-[var(--text-secondary)]">Loading results...</div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+    try {
+        const data = await fetchJSON('/api/state');
+        const s = data.state;
+        if (s.status !== 'finished') {
+            window.location.href = BASE_PATH + (s.status === 'auction' ? '/auction' : '/');
+            return;
+        }
+        render(s);
+    } catch (e) {
+        document.getElementById('results-root').innerHTML =
+            '<p class="text-red-600">' + e.message + '</p>';
+    }
+});
+
+function render(s) {
+    const root = document.getElementById('results-root');
+    let html = '<div class="flex flex-wrap items-center justify-between gap-3 mb-6">';
+    html += '<div><div class="display-font text-4xl text-auction-gold">AUCTION COMPLETE</div>';
+    html += '<p class="text-sm text-[var(--text-secondary)] mt-1">Sold ' + s.sold_count +
+        ' · Unsold ' + (s.unsold_count || 0) + ' · Pool ' + s.auction_pool_size + '</p></div>';
+    html += '<button onclick="newAuction()" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-auction-navy text-white text-sm font-bold">' +
+        '<span class="material-icons text-base">refresh</span> New Auction</button>';
+    html += '</div>';
+
+    html += '<div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 mb-8">';
+    s.teams.forEach(t => {
+        html += '<div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-5">';
+        html += '<div class="flex items-center justify-between mb-1">';
+        html += '<h2 class="text-lg font-bold">' + escapeHtml(t.name) + '</h2>';
+        const maxSq = s.max_squad_size || 20;
+        const minSq = s.min_squad_size || 15;
+        const short = t.players.length < minSq;
+        html += '<span class="text-xs px-2 py-0.5 rounded-full ' +
+            (short ? 'bg-red-100 text-red-800' : 'bg-[var(--bg-elevated)]') + '">' +
+            t.players.length + '/' + maxSq +
+            (short ? ' · below min ' + minSq : '') + '</span>';
+        html += '</div>';
+        html += '<div class="text-sm text-[var(--text-secondary)] mb-4">Spent <strong>' + money(t.spent) +
+            '</strong> · Left <strong>' + money(t.remaining_budget) + '</strong></div>';
+
+        const byRole = {};
+        t.players.forEach(p => {
+            byRole[p.role] = byRole[p.role] || [];
+            byRole[p.role].push(p);
+        });
+        Object.keys(s.role_labels || {}).forEach(role => {
+            const list = byRole[role] || [];
+            if (!list.length) return;
+            html += '<div class="mb-3">';
+            html += '<div class="text-[0.65rem] font-semibold uppercase tracking-wider mb-1 ' +
+                'inline-flex px-2 py-0.5 rounded-full ' + roleClass(role) + '">' + roleLabel(role, s.role_labels) + '</div>';
+            list.forEach(p => {
+                html += '<div class="flex justify-between text-sm py-0.5">';
+                html += '<span>' + escapeHtml(p.name) + (p.backup_wk ? ' <span class="text-[0.65rem] text-[var(--text-muted)]">(WK)</span>' : '') + '</span>';
+                html += '<span class="font-semibold text-auction-gold">' + money(p.sold_price) + '</span>';
+                html += '</div>';
+            });
+            html += '</div>';
+        });
+        html += '</div>';
+    });
+    html += '</div>';
+
+    // Unsold list
+    html += '<div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-5 mb-6">';
+    html += '<h3 class="text-sm font-semibold mb-3">Unsold players (' + (s.unsold || []).length + ')</h3>';
+    if (!(s.unsold || []).length) {
+        html += '<p class="text-sm text-[var(--text-muted)]">None — everyone was sold.</p>';
+    } else {
+        html += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">';
+        s.unsold.forEach(p => {
+            html += '<div class="flex items-center justify-between text-sm px-3 py-2 rounded-lg bg-[var(--bg-elevated)]">';
+            html += '<span class="line-through text-[var(--text-muted)]">' + escapeHtml(p.name) + '</span>';
+            html += '<span class="text-[0.65rem] px-2 py-0.5 rounded-full ' + roleClass(p.role) + '">' +
+                roleLabel(p.role, s.role_labels) + '</span>';
+            html += '</div>';
+        });
+        html += '</div>';
+    }
+    html += '</div>';
+
+    html += '<div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-5">';
+    html += '<h3 class="text-sm font-semibold mb-3">Full sale log</h3>';
+    html += '<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="text-left text-[var(--text-muted)]">';
+    html += '<th class="pb-2">#</th><th class="pb-2">Player</th><th class="pb-2">Role</th><th class="pb-2">Outcome</th><th class="pb-2 text-right">Price</th>';
+    html += '</tr></thead><tbody>';
+    (s.history || []).forEach((h, i) => {
+        const unsold = h.outcome === 'unsold' || (!h.team_name && !h.price);
+        html += '<tr class="border-t border-[var(--border)]">';
+        html += '<td class="py-2 text-[var(--text-muted)]">' + (i + 1) + '</td>';
+        html += '<td class="py-2 font-medium">' + escapeHtml(h.player_name) + '</td>';
+        html += '<td class="py-2"><span class="text-[0.65rem] px-2 py-0.5 rounded-full ' + roleClass(h.role) + '">' +
+            roleLabel(h.role, s.role_labels) + '</span></td>';
+        html += '<td class="py-2">' + (unsold ? '<span class="text-[var(--text-muted)]">Unsold</span>' : escapeHtml(h.team_name)) + '</td>';
+        html += '<td class="py-2 text-right font-semibold">' + (unsold ? '—' : money(h.price)) + '</td>';
+        html += '</tr>';
+    });
+    html += '</tbody></table></div></div>';
+
+    root.innerHTML = html;
+}
+
+async function newAuction() {
+    await fetchJSON('/api/reset', { method: 'POST', body: '{}' });
+    window.location.href = BASE_PATH + '/';
+}
+
+function escapeHtml(str) {
+    return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+</script>
+{% endblock %}

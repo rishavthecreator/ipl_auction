@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}About{% endblock %}
+{% block page_title %}About{% endblock %}
+{% block page_subtitle %}How this auction site works{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl space-y-6">
+
+    <div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-5">
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2">Purpose</h2>
+        <p class="text-sm text-[var(--text-secondary)]">{{ info.purpose }}</p>
+    </div>
+
+    <div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-5">
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2">Owner / Maintainer</h2>
+        <p class="text-sm text-[var(--text-primary)] font-medium">{{ info.owner.name }}</p>
+        <p class="text-sm text-[var(--text-secondary)]">
+            {% if info.owner.email %}
+            <a href="mailto:{{ info.owner.email }}" class="text-auction-gold hover:underline">{{ info.owner.email }}</a>
+            &mdash;
+            {% endif %}
+            {{ info.owner.team }}
+        </p>
+    </div>
+
+    <div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-5">
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-3">Data Sources</h2>
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="text-left text-[var(--text-muted)]">
+                    <th class="pb-2 font-medium">Name</th>
+                    <th class="pb-2 font-medium">Type</th>
+                    <th class="pb-2 font-medium">Detail</th>
+                </tr>
+            </thead>
+            <tbody class="text-[var(--text-secondary)]">
+                {% for src in info.data_sources %}
+                <tr class="border-t border-[var(--border)]">
+                    <td class="py-2">{{ src.name }}</td>
+                    <td class="py-2">{{ src.type }}</td>
+                    <td class="py-2">{{ src.detail }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-5">
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2">Refresh Cadence</h2>
+        <p class="text-sm text-[var(--text-secondary)]">{{ info.refresh_cadence }}</p>
+    </div>
+
+    <div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-5">
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2">Known Limitations</h2>
+        <ul class="list-disc list-inside text-sm text-[var(--text-secondary)] space-y-1">
+            {% for item in info.known_limitations %}
+            <li>{{ item }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+</div>
+{% endblock %}

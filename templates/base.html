@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Home{% endblock %} - {{ SITE_NAME }}</title>
+    <script>
+    (function() {
+        var t = localStorage.getItem('app-theme');
+        if (t === 'dark') document.documentElement.classList.add('dark');
+    })();
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --font-body: 'DM Sans', system-ui, sans-serif;
+            --font-display: 'Bebas Neue', sans-serif;
+            --brand-red: #DC2626;
+            --bg-page: #F4F6F8;
+            --bg-card: #FFFFFF;
+            --bg-elevated: #EEF1F4;
+            --bg-hover: #E2E6EB;
+            --border: #DCE1E6;
+            --text-primary: #0F172A;
+            --text-secondary: #64748B;
+            --text-muted: #94A3B8;
+            --nav-bg: #0B1F33;
+            --nav-text: #FFFFFF;
+            --nav-hover: #16324D;
+            --accent: #E8A317;
+            --accent-2: #0E7490;
+            --hammer: #C2410C;
+        }
+        .dark {
+            color-scheme: dark;
+            --bg-page: #0A1220;
+            --bg-card: #132033;
+            --bg-elevated: #1B2B42;
+            --bg-hover: #243652;
+            --border: #2A3F59;
+            --text-primary: #F1F5F9;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+            --nav-bg: #060E18;
+        }
+        html { font-size: clamp(87.5%, 0.75vw, 200%); }
+        body { font-family: var(--font-body); }
+        .display-font { font-family: var(--font-display); letter-spacing: 0.04em; }
+        .role-wk { background: #FEF3C7; color: #92400E; }
+        .role-batter { background: #DBEAFE; color: #1E40AF; }
+        .role-bowler { background: #DCFCE7; color: #166534; }
+        .role-ar { background: #F3E8FF; color: #6B21A8; }
+        .dark .role-wk { background: #78350F55; color: #FCD34D; }
+        .dark .role-batter { background: #1E3A8A55; color: #93C5FD; }
+        .dark .role-bowler { background: #14532D55; color: #86EFAC; }
+        .dark .role-ar { background: #581C8755; color: #D8B4FE; }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(232, 163, 23, 0.35); }
+            50% { box-shadow: 0 0 0 10px rgba(232, 163, 23, 0); }
+        }
+        .auction-live { animation: pulse-glow 1.6s ease-in-out infinite; }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        body: ['DM Sans', 'system-ui', 'sans-serif'],
+                        display: ['Bebas Neue', 'sans-serif'],
+                    },
+                    colors: {
+                        'brand-red': '#DC2626',
+                        'auction-gold': '#E8A317',
+                        'auction-navy': '#0B1F33',
+                    }
+                }
+            }
+        }
+    </script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-[var(--bg-page)] text-[var(--text-primary)] min-h-screen flex">
+
+    <aside class="fixed top-0 left-0 h-full w-56 bg-[var(--nav-bg)] text-[var(--nav-text)] flex flex-col z-50 shadow-xl">
+        <div class="px-5 py-5 border-b border-white/10">
+            <a href="{{ request.script_root }}/" class="flex items-center gap-2.5 no-underline">
+                <span class="material-icons text-auction-gold text-2xl">gavel</span>
+                <div>
+                    <div class="text-base font-bold text-white leading-tight">{{ SITE_NAME }}</div>
+                    <div class="text-[0.65rem] text-slate-400 tracking-wider uppercase">Live Auction</div>
+                </div>
+            </a>
+        </div>
+
+        <nav class="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
+            <a href="{{ request.script_root }}/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors
+                {{ 'bg-white/10 text-white' if request.path == '/' else 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
+                <span class="material-icons text-lg">sports_cricket</span>
+                Setup
+            </a>
+            <a id="nav-auction" href="{{ request.script_root }}/auction" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors
+                {{ 'bg-white/10 text-white' if request.path == '/auction' else 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
+                <span class="material-icons text-lg">gavel</span>
+                Auction Floor
+            </a>
+            <a id="nav-results" href="{{ request.script_root }}/results" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors
+                {{ 'bg-white/10 text-white' if request.path == '/results' else 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
+                <span class="material-icons text-lg">emoji_events</span>
+                Results
+            </a>
+        </nav>
+
+        <div class="px-3 pb-2">
+            <a href="{{ request.script_root }}/about" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors
+                {{ 'bg-white/10 text-white' if request.path == '/about' else 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
+                <span class="material-icons text-lg">info</span>
+                About
+            </a>
+        </div>
+
+        <div class="px-4 py-3 border-t border-white/10">
+            <button onclick="toggleTheme()" class="flex items-center gap-2 text-xs text-slate-400 hover:text-white transition-colors">
+                <span class="material-icons text-sm" id="theme-icon">light_mode</span>
+                <span id="theme-label">Light Mode</span>
+            </button>
+        </div>
+    </aside>
+
+    <main class="ml-56 flex-1 min-h-screen">
+        <header class="sticky top-0 z-40 bg-[var(--bg-page)]/80 backdrop-blur-md border-b border-[var(--border)] px-6 py-3 flex items-center justify-between">
+            <div>
+                <h1 class="text-lg font-bold">{% block page_title %}Dashboard{% endblock %}</h1>
+                <p class="text-xs text-[var(--text-muted)]">{% block page_subtitle %}{% endblock %}</p>
+            </div>
+            <div class="flex items-center gap-3 text-xs text-[var(--text-secondary)]">
+            </div>
+        </header>
+
+        <div class="p-6">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const isDark = html.classList.toggle('dark');
+            localStorage.setItem('app-theme', isDark ? 'dark' : 'light');
+            updateThemeUI();
+        }
+        function updateThemeUI() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const icon = document.getElementById('theme-icon');
+            const label = document.getElementById('theme-label');
+            if (icon) icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+            if (label) label.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+        }
+        updateThemeUI();
+
+        const CSRF_TOKEN = '{{ csrf_token() }}';
+
+        const BASE_PATH = (function() {
+            var flaskPath = "{{ request.path }}";
+            var browserPath = window.location.pathname;
+            if (browserPath.length > flaskPath.length && browserPath.endsWith(flaskPath)) {
+                return browserPath.slice(0, browserPath.length - flaskPath.length);
+            }
+            var fp = flaskPath.replace(/\/$/, '');
+            var idx = fp ? browserPath.lastIndexOf(fp) : -1;
+            if (idx > 0) return browserPath.slice(0, idx);
+            return '{{ request.script_root | default("", true) }}';
+        })();
+
+        (function() {
+    try {
+        var params = new URLSearchParams(window.location.search);
+        var room = params.get('room') || localStorage.getItem('ipl_room_code') || '';
+        if (room) {
+            var a = document.getElementById('nav-auction');
+            var r = document.getElementById('nav-results');
+            if (a) a.href = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + '/auction?room=' + encodeURIComponent(room);
+            if (r) r.href = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + '/results?room=' + encodeURIComponent(room);
+        }
+    } catch (e) {}
+})();
+
+
+        function fetchJSON(url, options) {
+            const fullUrl = BASE_PATH + url;
+            const opts = Object.assign({
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': CSRF_TOKEN,
+                },
+            }, options || {});
+            if (opts.headers && options && options.headers) {
+                opts.headers = Object.assign({}, opts.headers, options.headers);
+            }
+            return fetch(fullUrl, opts).then(async r => {
+                const data = await r.json().catch(() => ({}));
+                if (!r.ok || data.ok === false) {
+                    throw new Error(data.error || ('Request failed: ' + r.status));
+                }
+                return data;
+            });
+        }
+
+        function roleClass(role) {
+            if (role === 'wicket_keeper') return 'role-wk';
+            if (role === 'batter') return 'role-batter';
+            if (role === 'bowler') return 'role-bowler';
+            if (role === 'all_rounder') return 'role-ar';
+            return 'role-batter';
+        }
+
+        function roleLabel(role, labels) {
+            return (labels && labels[role]) || role;
+        }
+
+        function money(n) {
+            return Number(n || 0).toFixed(1) + ' Cr';
+        }
+
+        function showLoading(el) {
+            if (el) el.innerHTML = '<div class="flex items-center justify-center py-12"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-auction-gold"></div><span class="ml-3 text-sm text-[var(--text-secondary)]">Loading...</span></div>';
+        }
+
+        function toast(msg, isError) {
+            let el = document.getElementById('toast');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = 'toast';
+                el.className = 'fixed bottom-6 right-6 z-[100] max-w-sm px-4 py-3 rounded-lg shadow-lg text-sm font-medium hidden';
+                document.body.appendChild(el);
+            }
+            el.textContent = msg;
+            el.className = 'fixed bottom-6 right-6 z-[100] max-w-sm px-4 py-3 rounded-lg shadow-lg text-sm font-medium ' +
+                (isError ? 'bg-red-600 text-white' : 'bg-slate-900 text-white');
+            el.classList.remove('hidden');
+            clearTimeout(el._t);
+            el._t = setTimeout(() => el.classList.add('hidden'), 3200);
+        }
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Error{% endblock %}
+{% block page_title %}Something went wrong{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-6">
+        <div class="flex items-center gap-3 mb-4">
+            <span class="material-icons text-red-600 text-3xl">error</span>
+            <h2 class="text-lg font-semibold">Error</h2>
+        </div>
+        <p class="text-sm text-[var(--text-secondary)] mb-4">{{ error_message }}</p>
+        {% if ENV_NAME == 'development' and error_traceback %}
+        <details class="mt-4">
+            <summary class="text-xs text-[var(--text-muted)] cursor-pointer">Traceback</summary>
+            <pre class="mt-2 text-xs bg-[var(--bg-elevated)] p-3 rounded overflow-x-auto">{{ error_traceback }}</pre>
+        </details>
+        {% endif %}
+        <div class="mt-6">
+            <a href="{{ request.script_root }}/" class="inline-flex items-center gap-2 px-4 py-2 bg-auction-gold text-slate-900 rounded-lg text-sm font-medium hover:opacity-90">
+                <span class="material-icons text-sm">home</span>
+                Back to Setup
+            </a>
+        </div>
+    </div>
+    <p class="text-xs text-[var(--text-muted)] mt-4 text-center">{{ now }}</p>
+</div>
+{% endblock %}

@@ -1,0 +1,1782 @@
+[
+  {
+    "id": 1,
+    "name": "Virat Kohli",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 2,
+    "name": "Rohit Sharma",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 3,
+    "name": "Shubman Gill",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 4,
+    "name": "Suryakumar Yadav",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 5,
+    "name": "Yashasvi Jaiswal",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 6,
+    "name": "Ruturaj Gaikwad",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 7,
+    "name": "Shreyas Iyer",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 8,
+    "name": "Sai Sudharsan",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 9,
+    "name": "Tilak Varma",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 10,
+    "name": "Rajat Patidar",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 11,
+    "name": "Rinku Singh",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 12,
+    "name": "Travis Head",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 13,
+    "name": "David Miller",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 14,
+    "name": "Faf du Plessis",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 15,
+    "name": "Harry Brook",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 16,
+    "name": "Devon Conway",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 17,
+    "name": "Jake Fraser-McGurk",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 18,
+    "name": "Aiden Markram",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 19,
+    "name": "Ajinkya Rahane",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 20,
+    "name": "Mayank Agarwal",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 21,
+    "name": "Devdutt Padikkal",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 22,
+    "name": "Rahul Tripathi",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 23,
+    "name": "Prithvi Shaw",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 24,
+    "name": "Nehal Wadhera",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 25,
+    "name": "Angkrish Raghuvanshi",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 26,
+    "name": "Rovman Powell",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 27,
+    "name": "Shimron Hetmyer",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 28,
+    "name": "Dewald Brevis",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 29,
+    "name": "Tim David",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 30,
+    "name": "Pathum Nissanka",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 31,
+    "name": "Steve Smith",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 32,
+    "name": "Kane Williamson",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 33,
+    "name": "Manish Pandey",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 34,
+    "name": "Nitish Rana",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 35,
+    "name": "Sarfaraz Khan",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 36,
+    "name": "Abhishek Sharma",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 37,
+    "name": "Priyansh Arya",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 38,
+    "name": "Ayush Mhatre",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 39,
+    "name": "Vaibhav Sooryavanshi",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 40,
+    "name": "Shashank Singh",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 41,
+    "name": "David Warner",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 42,
+    "name": "Glenn Phillips",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 43,
+    "name": "Karun Nair",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 44,
+    "name": "Yash Dhull",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 45,
+    "name": "Abhinav Manohar",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 46,
+    "name": "Atharva Taide",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 47,
+    "name": "Anmolpreet Singh",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 48,
+    "name": "Sameer Rizvi",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 49,
+    "name": "Ashutosh Sharma",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 50,
+    "name": "Ricky Bhui",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 51,
+    "name": "MS Dhoni",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 52,
+    "name": "Rishabh Pant",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 53,
+    "name": "KL Rahul",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 54,
+    "name": "Sanju Samson",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 55,
+    "name": "Ishan Kishan",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 56,
+    "name": "Jos Buttler",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 57,
+    "name": "Heinrich Klaasen",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 58,
+    "name": "Nicholas Pooran",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 59,
+    "name": "Phil Salt",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 60,
+    "name": "Dhruv Jurel",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 61,
+    "name": "Jitesh Sharma",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 62,
+    "name": "Prabhsimran Singh",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 63,
+    "name": "Quinton de Kock",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 64,
+    "name": "Jonny Bairstow",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 65,
+    "name": "Rahmanullah Gurbaz",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 66,
+    "name": "Josh Inglis",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 67,
+    "name": "Tristan Stubbs",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 68,
+    "name": "Anuj Rawat",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 69,
+    "name": "Abhishek Porel",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 70,
+    "name": "Donovan Ferreira",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 71,
+    "name": "Kumar Kushagra",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 72,
+    "name": "Robin Minz",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 73,
+    "name": "Vishnu Vinod",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 74,
+    "name": "Luvnith Sisodia",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 75,
+    "name": "Aryan Juyal",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 76,
+    "name": "Hardik Pandya",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 77,
+    "name": "Ravindra Jadeja",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 78,
+    "name": "Axar Patel",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 79,
+    "name": "Andre Russell",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 80,
+    "name": "Sunil Narine",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 81,
+    "name": "Glenn Maxwell",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 82,
+    "name": "Marcus Stoinis",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 83,
+    "name": "Mitchell Marsh",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 84,
+    "name": "Cameron Green",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 85,
+    "name": "Liam Livingstone",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 86,
+    "name": "Sam Curran",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 87,
+    "name": "Rashid Khan",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 88,
+    "name": "Washington Sundar",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 89,
+    "name": "Krunal Pandya",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 90,
+    "name": "Shivam Dube",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 91,
+    "name": "Venkatesh Iyer",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 92,
+    "name": "Riyan Parag",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 93,
+    "name": "Nitish Reddy",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 94,
+    "name": "Will Jacks",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 95,
+    "name": "Wanindu Hasaranga",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 96,
+    "name": "Marco Jansen",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 97,
+    "name": "Ravichandran Ashwin",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 98,
+    "name": "Harshal Patel",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 99,
+    "name": "Rachin Ravindra",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 100,
+    "name": "Deepak Hooda",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 101,
+    "name": "Rahul Tewatia",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 102,
+    "name": "Mahipal Lomror",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 103,
+    "name": "Harpreet Brar",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 104,
+    "name": "Naman Dhir",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 105,
+    "name": "Abdul Samad",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 106,
+    "name": "Vijay Shankar",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 107,
+    "name": "Nishant Sindhu",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 108,
+    "name": "Moeen Ali",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 109,
+    "name": "Ben Stokes",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 110,
+    "name": "Chris Jordan",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 111,
+    "name": "Romario Shepherd",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 112,
+    "name": "Gerald Coetzee",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 113,
+    "name": "Jamie Overton",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 114,
+    "name": "Sean Abbott",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 115,
+    "name": "Azmatullah Omarzai",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 116,
+    "name": "Jasprit Bumrah",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 117,
+    "name": "Mohammed Shami",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 118,
+    "name": "Mohammed Siraj",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 119,
+    "name": "Arshdeep Singh",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 120,
+    "name": "Mitchell Starc",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 121,
+    "name": "Kagiso Rabada",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 122,
+    "name": "Trent Boult",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 123,
+    "name": "Josh Hazlewood",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 124,
+    "name": "Pat Cummins",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 125,
+    "name": "Jofra Archer",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 126,
+    "name": "Bhuvneshwar Kumar",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 127,
+    "name": "Yuzvendra Chahal",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 128,
+    "name": "Kuldeep Yadav",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 129,
+    "name": "Varun Chakravarthy",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 130,
+    "name": "Ravi Bishnoi",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 131,
+    "name": "Noor Ahmad",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 132,
+    "name": "T Natarajan",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 133,
+    "name": "Matheesha Pathirana",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 134,
+    "name": "Mayank Yadav",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 135,
+    "name": "Harshit Rana",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 136,
+    "name": "Avesh Khan",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 137,
+    "name": "Prasidh Krishna",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 138,
+    "name": "Khaleel Ahmed",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 139,
+    "name": "Anrich Nortje",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 140,
+    "name": "Lockie Ferguson",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 141,
+    "name": "Umran Malik",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 142,
+    "name": "Deepak Chahar",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 143,
+    "name": "Sandeep Sharma",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 144,
+    "name": "Adam Zampa",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 145,
+    "name": "Maheesh Theekshana",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 146,
+    "name": "Rahul Chahar",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 147,
+    "name": "Yash Dayal",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 148,
+    "name": "Mukesh Kumar",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 149,
+    "name": "Shardul Thakur",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 150,
+    "name": "Mohit Sharma",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 151,
+    "name": "Akash Madhwal",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 152,
+    "name": "Vaibhav Arora",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 153,
+    "name": "Yash Thakur",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 154,
+    "name": "Simarjeet Singh",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 155,
+    "name": "Kartik Tyagi",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 156,
+    "name": "Vyshak Vijaykumar",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 157,
+    "name": "Rasikh Dar",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 158,
+    "name": "Piyush Chawla",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 159,
+    "name": "Mayank Markande",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 160,
+    "name": "Suyash Sharma",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 161,
+    "name": "Karn Sharma",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 162,
+    "name": "Kumar Kartikeya Singh",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 163,
+    "name": "Manav Suthar",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 164,
+    "name": "Nandre Burger",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 165,
+    "name": "Fazalhaq Farooqi",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 166,
+    "name": "Spencer Johnson",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 167,
+    "name": "Luke Wood",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 168,
+    "name": "Otneil Baartman",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 169,
+    "name": "Jaydev Unadkat",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 170,
+    "name": "Ishant Sharma",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 171,
+    "name": "Umesh Yadav",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 172,
+    "name": "Navdeep Saini",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 173,
+    "name": "Chetan Sakariya",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 174,
+    "name": "Tushar Deshpande",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 175,
+    "name": "Mukesh Choudhary",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 176,
+    "name": "Josh Little",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 177,
+    "name": "Reece Topley",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  },
+  {
+    "id": 178,
+    "name": "Jason Behrendorff",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": null,
+    "set_code": "ALLSTAR",
+    "all_star": true
+  }
+]

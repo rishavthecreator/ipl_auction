@@ -1,0 +1,2642 @@
+[
+  {
+    "id": 1,
+    "name": "Jos Buttler",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": "England",
+    "set_code": "M1",
+    "source_list_no": 1
+  },
+  {
+    "id": 2,
+    "name": "Shreyas Iyer",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": "India",
+    "set_code": "M1",
+    "source_list_no": 2
+  },
+  {
+    "id": 3,
+    "name": "Rishabh Pant",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": "India",
+    "set_code": "M1",
+    "source_list_no": 3
+  },
+  {
+    "id": 4,
+    "name": "Kagiso Rabada",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": "South Africa",
+    "set_code": "M1",
+    "source_list_no": 4
+  },
+  {
+    "id": 5,
+    "name": "Arshdeep Singh",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": "India",
+    "set_code": "M1",
+    "source_list_no": 5
+  },
+  {
+    "id": 6,
+    "name": "Mitchell Starc",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": "Australia",
+    "set_code": "M1",
+    "source_list_no": 6
+  },
+  {
+    "id": 7,
+    "name": "Yuzvendra Chahal",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": "India",
+    "set_code": "M2",
+    "source_list_no": 7
+  },
+  {
+    "id": 8,
+    "name": "Liam Livingstone",
+    "role": "all_rounder",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": "England",
+    "set_code": "M2",
+    "source_list_no": 8
+  },
+  {
+    "id": 9,
+    "name": "David Miller",
+    "role": "batter",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": "South Africa",
+    "set_code": "M2",
+    "source_list_no": 9
+  },
+  {
+    "id": 10,
+    "name": "KL Rahul",
+    "role": "wicket_keeper",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": "India",
+    "set_code": "M2",
+    "source_list_no": 10
+  },
+  {
+    "id": 11,
+    "name": "Mohammed Shami",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": "India",
+    "set_code": "M2",
+    "source_list_no": 11
+  },
+  {
+    "id": 12,
+    "name": "Mohammed Siraj",
+    "role": "bowler",
+    "tier": "marquee",
+    "base_price": 2.0,
+    "country": "India",
+    "set_code": "M2",
+    "source_list_no": 12
+  },
+  {
+    "id": 13,
+    "name": "Harry Brook",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "England",
+    "set_code": "BA1",
+    "source_list_no": 13
+  },
+  {
+    "id": 14,
+    "name": "Devon Conway",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "New Zealand",
+    "set_code": "BA1",
+    "source_list_no": 14
+  },
+  {
+    "id": 15,
+    "name": "Jake Fraser-Mcgurk",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Australia",
+    "set_code": "BA1",
+    "source_list_no": 15
+  },
+  {
+    "id": 16,
+    "name": "Aiden Markram",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "South Africa",
+    "set_code": "BA1",
+    "source_list_no": 16
+  },
+  {
+    "id": 17,
+    "name": "Devdutt Padikkal",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "BA1",
+    "source_list_no": 17
+  },
+  {
+    "id": 18,
+    "name": "Rahul Tripathi",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "BA1",
+    "source_list_no": 18
+  },
+  {
+    "id": 19,
+    "name": "David Warner",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Australia",
+    "set_code": "BA1",
+    "source_list_no": 19
+  },
+  {
+    "id": 20,
+    "name": "Ravichandaran Ashwin",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "AL1",
+    "source_list_no": 20
+  },
+  {
+    "id": 21,
+    "name": "Venkatesh Iyer",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "AL1",
+    "source_list_no": 21
+  },
+  {
+    "id": 22,
+    "name": "Mitchell Marsh",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Australia",
+    "set_code": "AL1",
+    "source_list_no": 22
+  },
+  {
+    "id": 23,
+    "name": "Glenn Maxwell",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Australia",
+    "set_code": "AL1",
+    "source_list_no": 23
+  },
+  {
+    "id": 24,
+    "name": "Harshal Patel",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "AL1",
+    "source_list_no": 24
+  },
+  {
+    "id": 25,
+    "name": "Rachin Ravindra",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "New Zealand",
+    "set_code": "AL1",
+    "source_list_no": 25
+  },
+  {
+    "id": 26,
+    "name": "Marcus Stoinis",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Australia",
+    "set_code": "AL1",
+    "source_list_no": 26
+  },
+  {
+    "id": 27,
+    "name": "Jonny Bairstow",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "England",
+    "set_code": "WK1",
+    "source_list_no": 27
+  },
+  {
+    "id": 28,
+    "name": "Quinton De Kock",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "South Africa",
+    "set_code": "WK1",
+    "source_list_no": 28
+  },
+  {
+    "id": 29,
+    "name": "Rahmanullah Gurbaz",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Afghanistan",
+    "set_code": "WK1",
+    "source_list_no": 29
+  },
+  {
+    "id": 30,
+    "name": "Ishan Kishan",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "WK1",
+    "source_list_no": 30
+  },
+  {
+    "id": 31,
+    "name": "Phil Salt",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "England",
+    "set_code": "WK1",
+    "source_list_no": 31
+  },
+  {
+    "id": 32,
+    "name": "Jitesh Sharma",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "WK1",
+    "source_list_no": 32
+  },
+  {
+    "id": 33,
+    "name": "Syed Khaleel Ahmed",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "FA1",
+    "source_list_no": 33
+  },
+  {
+    "id": 34,
+    "name": "Trent Boult",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "New Zealand",
+    "set_code": "FA1",
+    "source_list_no": 34
+  },
+  {
+    "id": 35,
+    "name": "Josh Hazlewood",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Australia",
+    "set_code": "FA1",
+    "source_list_no": 35
+  },
+  {
+    "id": 36,
+    "name": "Avesh Khan",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "FA1",
+    "source_list_no": 36
+  },
+  {
+    "id": 37,
+    "name": "Prasidh Krishna",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "FA1",
+    "source_list_no": 37
+  },
+  {
+    "id": 38,
+    "name": "T. Natarajan",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "FA1",
+    "source_list_no": 38
+  },
+  {
+    "id": 39,
+    "name": "Anrich Nortje",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "South Africa",
+    "set_code": "FA1",
+    "source_list_no": 39
+  },
+  {
+    "id": 40,
+    "name": "Noor Ahmad",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Afghanistan",
+    "set_code": "SP1",
+    "source_list_no": 40
+  },
+  {
+    "id": 41,
+    "name": "Rahul Chahar",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "SP1",
+    "source_list_no": 41
+  },
+  {
+    "id": 42,
+    "name": "Wanindu Hasaranga",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Sri Lanka",
+    "set_code": "SP1",
+    "source_list_no": 42
+  },
+  {
+    "id": 43,
+    "name": "Waqar Salamkheil",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Afghanistan",
+    "set_code": "SP1",
+    "source_list_no": 43
+  },
+  {
+    "id": 44,
+    "name": "Maheesh Theekshana",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Sri Lanka",
+    "set_code": "SP1",
+    "source_list_no": 44
+  },
+  {
+    "id": 45,
+    "name": "Adam Zampa",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Australia",
+    "set_code": "SP1",
+    "source_list_no": 45
+  },
+  {
+    "id": 46,
+    "name": "Yash Dhull",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA1",
+    "source_list_no": 46
+  },
+  {
+    "id": 47,
+    "name": "Abhinav Manohar",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA1",
+    "source_list_no": 47
+  },
+  {
+    "id": 48,
+    "name": "Karun Nair",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA1",
+    "source_list_no": 48
+  },
+  {
+    "id": 49,
+    "name": "Angkrish Raghuvanshi",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA1",
+    "source_list_no": 49
+  },
+  {
+    "id": 50,
+    "name": "Anmolpreet Singh",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA1",
+    "source_list_no": 50
+  },
+  {
+    "id": 51,
+    "name": "Atharva Taide",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA1",
+    "source_list_no": 51
+  },
+  {
+    "id": 52,
+    "name": "Nehal Wadhera",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA1",
+    "source_list_no": 52
+  },
+  {
+    "id": 53,
+    "name": "Harpreet Brar",
+    "role": "all_rounder",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UAL1",
+    "source_list_no": 53
+  },
+  {
+    "id": 54,
+    "name": "Naman Dhir",
+    "role": "all_rounder",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UAL1",
+    "source_list_no": 54
+  },
+  {
+    "id": 55,
+    "name": "Mahipal Lomror",
+    "role": "all_rounder",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UAL1",
+    "source_list_no": 55
+  },
+  {
+    "id": 56,
+    "name": "Sameer Rizvi",
+    "role": "all_rounder",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UAL1",
+    "source_list_no": 56
+  },
+  {
+    "id": 57,
+    "name": "Abdul Samad",
+    "role": "all_rounder",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UAL1",
+    "source_list_no": 57
+  },
+  {
+    "id": 58,
+    "name": "Vijay Shankar",
+    "role": "all_rounder",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UAL1",
+    "source_list_no": 58
+  },
+  {
+    "id": 59,
+    "name": "Ashutosh Sharma",
+    "role": "all_rounder",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UAL1",
+    "source_list_no": 59
+  },
+  {
+    "id": 60,
+    "name": "Nishant Sindhu",
+    "role": "all_rounder",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UAL1",
+    "source_list_no": 60
+  },
+  {
+    "id": 61,
+    "name": "Utkarsh Singh",
+    "role": "all_rounder",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UAL1",
+    "source_list_no": 61
+  },
+  {
+    "id": 62,
+    "name": "Aryan Juyal",
+    "role": "wicket_keeper",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UWK1",
+    "source_list_no": 62
+  },
+  {
+    "id": 63,
+    "name": "Kumar Kushagra",
+    "role": "wicket_keeper",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UWK1",
+    "source_list_no": 63
+  },
+  {
+    "id": 64,
+    "name": "Robin Minz",
+    "role": "wicket_keeper",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UWK1",
+    "source_list_no": 64
+  },
+  {
+    "id": 65,
+    "name": "Anuj Rawat",
+    "role": "wicket_keeper",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UWK1",
+    "source_list_no": 65
+  },
+  {
+    "id": 66,
+    "name": "Luvnith Sisodia",
+    "role": "wicket_keeper",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UWK1",
+    "source_list_no": 66
+  },
+  {
+    "id": 67,
+    "name": "Vishnu Vinod",
+    "role": "wicket_keeper",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UWK1",
+    "source_list_no": 67
+  },
+  {
+    "id": 68,
+    "name": "Upendra Singh Yadav",
+    "role": "wicket_keeper",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UWK1",
+    "source_list_no": 68
+  },
+  {
+    "id": 69,
+    "name": "Vaibhav Arora",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UFA1",
+    "source_list_no": 69
+  },
+  {
+    "id": 70,
+    "name": "Rasikh Dar",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UFA1",
+    "source_list_no": 70
+  },
+  {
+    "id": 71,
+    "name": "Akash Madhwal",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UFA1",
+    "source_list_no": 71
+  },
+  {
+    "id": 72,
+    "name": "Mohit Sharma",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UFA1",
+    "source_list_no": 72
+  },
+  {
+    "id": 73,
+    "name": "Simarjeet Singh",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UFA1",
+    "source_list_no": 73
+  },
+  {
+    "id": 74,
+    "name": "Yash Thakur",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UFA1",
+    "source_list_no": 74
+  },
+  {
+    "id": 75,
+    "name": "Kartik Tyagi",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UFA1",
+    "source_list_no": 75
+  },
+  {
+    "id": 76,
+    "name": "Vyshak Vijaykumar",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UFA1",
+    "source_list_no": 76
+  },
+  {
+    "id": 77,
+    "name": "Piyush Chawla",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "USP1",
+    "source_list_no": 77
+  },
+  {
+    "id": 78,
+    "name": "Shreyas Gopal",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "USP1",
+    "source_list_no": 78
+  },
+  {
+    "id": 79,
+    "name": "Mayank Markande",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "USP1",
+    "source_list_no": 79
+  },
+  {
+    "id": 80,
+    "name": "Suyash Sharma",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "USP1",
+    "source_list_no": 80
+  },
+  {
+    "id": 81,
+    "name": "Karn Sharma",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "USP1",
+    "source_list_no": 81
+  },
+  {
+    "id": 82,
+    "name": "Kumar Kartikeya Singh",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "USP1",
+    "source_list_no": 82
+  },
+  {
+    "id": 83,
+    "name": "Manav Suthar",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "USP1",
+    "source_list_no": 83
+  },
+  {
+    "id": 84,
+    "name": "Mayank Agarawal",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "BA2",
+    "source_list_no": 84
+  },
+  {
+    "id": 85,
+    "name": "Faf Du Plessis",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "South Africa",
+    "set_code": "BA2",
+    "source_list_no": 85
+  },
+  {
+    "id": 86,
+    "name": "Glenn Phillips",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "New Zealand",
+    "set_code": "BA2",
+    "source_list_no": 86
+  },
+  {
+    "id": 87,
+    "name": "Rovman Powell",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "West Indies",
+    "set_code": "BA2",
+    "source_list_no": 87
+  },
+  {
+    "id": 88,
+    "name": "Ajinkya Rahane",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "BA2",
+    "source_list_no": 88
+  },
+  {
+    "id": 89,
+    "name": "Prithvi Shaw",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "BA2",
+    "source_list_no": 89
+  },
+  {
+    "id": 90,
+    "name": "Kane Williamson",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "New Zealand",
+    "set_code": "BA2",
+    "source_list_no": 90
+  },
+  {
+    "id": 91,
+    "name": "Sam Curran",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "England",
+    "set_code": "AL2",
+    "source_list_no": 91
+  },
+  {
+    "id": 92,
+    "name": "Marco Jansen",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "South Africa",
+    "set_code": "AL2",
+    "source_list_no": 92
+  },
+  {
+    "id": 93,
+    "name": "Daryl Mitchell",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "New Zealand",
+    "set_code": "AL2",
+    "source_list_no": 93
+  },
+  {
+    "id": 94,
+    "name": "Krunal Pandya",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "AL2",
+    "source_list_no": 94
+  },
+  {
+    "id": 95,
+    "name": "Nitish Rana",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "AL2",
+    "source_list_no": 95
+  },
+  {
+    "id": 96,
+    "name": "Washington Sundar",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "AL2",
+    "source_list_no": 96
+  },
+  {
+    "id": 97,
+    "name": "Shardul Thakur",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "AL2",
+    "source_list_no": 97
+  },
+  {
+    "id": 98,
+    "name": "K.S Bharat",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "WK2",
+    "source_list_no": 98
+  },
+  {
+    "id": 99,
+    "name": "Alex Carey",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Australia",
+    "set_code": "WK2",
+    "source_list_no": 99
+  },
+  {
+    "id": 100,
+    "name": "Donovan Ferreira",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "South Africa",
+    "set_code": "WK2",
+    "source_list_no": 100
+  },
+  {
+    "id": 101,
+    "name": "Shai Hope",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "West Indies",
+    "set_code": "WK2",
+    "source_list_no": 101
+  },
+  {
+    "id": 102,
+    "name": "Josh Inglis",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Australia",
+    "set_code": "WK2",
+    "source_list_no": 102
+  },
+  {
+    "id": 103,
+    "name": "Ryan Rickelton",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "South Africa",
+    "set_code": "WK2",
+    "source_list_no": 103
+  },
+  {
+    "id": 104,
+    "name": "Deepak Chahar",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "FA2",
+    "source_list_no": 104
+  },
+  {
+    "id": 105,
+    "name": "Gerald Coetzee",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "South Africa",
+    "set_code": "FA2",
+    "source_list_no": 105
+  },
+  {
+    "id": 106,
+    "name": "Akash Deep",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "FA2",
+    "source_list_no": 106
+  },
+  {
+    "id": 107,
+    "name": "Tushar Deshpande",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "FA2",
+    "source_list_no": 107
+  },
+  {
+    "id": 108,
+    "name": "Lockie Ferguson",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "New Zealand",
+    "set_code": "FA2",
+    "source_list_no": 108
+  },
+  {
+    "id": 109,
+    "name": "Bhuvneshwar Kumar",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "FA2",
+    "source_list_no": 109
+  },
+  {
+    "id": 110,
+    "name": "Mukesh Kumar",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "FA2",
+    "source_list_no": 110
+  },
+  {
+    "id": 111,
+    "name": "Allah Ghazanfar",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Afghanistan",
+    "set_code": "SP2",
+    "source_list_no": 111
+  },
+  {
+    "id": 112,
+    "name": "Akeal Hosein",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "West Indies",
+    "set_code": "SP2",
+    "source_list_no": 112
+  },
+  {
+    "id": 113,
+    "name": "Keshav Maharaj",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "South Africa",
+    "set_code": "SP2",
+    "source_list_no": 113
+  },
+  {
+    "id": 114,
+    "name": "Mujeeb Ur Rahman",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Afghanistan",
+    "set_code": "SP2",
+    "source_list_no": 114
+  },
+  {
+    "id": 115,
+    "name": "Adil Rashid",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "England",
+    "set_code": "SP2",
+    "source_list_no": 115
+  },
+  {
+    "id": 116,
+    "name": "Vijayakanth Viyaskanth",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Sri Lanka",
+    "set_code": "SP2",
+    "source_list_no": 116
+  },
+  {
+    "id": 117,
+    "name": "Ricky Bhui",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA2",
+    "source_list_no": 117
+  },
+  {
+    "id": 118,
+    "name": "Swastik Chhikara",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA2",
+    "source_list_no": 118
+  },
+  {
+    "id": 119,
+    "name": "Aarya Desai",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA2",
+    "source_list_no": 119
+  },
+  {
+    "id": 120,
+    "name": "Shubham Dubey",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA2",
+    "source_list_no": 120
+  },
+  {
+    "id": 121,
+    "name": "Madhav Kaushik",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA2",
+    "source_list_no": 121
+  },
+  {
+    "id": 122,
+    "name": "Pukhraj Mann",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA2",
+    "source_list_no": 122
+  },
+  {
+    "id": 123,
+    "name": "Shaik Rasheed",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA2",
+    "source_list_no": 123
+  },
+  {
+    "id": 124,
+    "name": "Himmat Singh",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA2",
+    "source_list_no": 124
+  },
+  {
+    "id": 125,
+    "name": "Mayank Dagar",
+    "role": "all_rounder",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UAL2",
+    "source_list_no": 125
+  },
+  {
+    "id": 126,
+    "name": "Anshul Kamboj",
+    "role": "all_rounder",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UAL2",
+    "source_list_no": 126
+  },
+  {
+    "id": 127,
+    "name": "Mohd. Arshad Khan",
+    "role": "all_rounder",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UAL2",
+    "source_list_no": 127
+  },
+  {
+    "id": 128,
+    "name": "Darshan Nalkande",
+    "role": "all_rounder",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UAL2",
+    "source_list_no": 128
+  },
+  {
+    "id": 129,
+    "name": "Suyash Prabhudessai",
+    "role": "all_rounder",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UAL2",
+    "source_list_no": 129
+  },
+  {
+    "id": 130,
+    "name": "Anukul Roy",
+    "role": "all_rounder",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UAL2",
+    "source_list_no": 130
+  },
+  {
+    "id": 131,
+    "name": "Swapnil Singh",
+    "role": "all_rounder",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UAL2",
+    "source_list_no": 131
+  },
+  {
+    "id": 132,
+    "name": "Sanvir Singh",
+    "role": "all_rounder",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UAL2",
+    "source_list_no": 132
+  },
+  {
+    "id": 133,
+    "name": "Avanish Aravelly",
+    "role": "wicket_keeper",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UWK2",
+    "source_list_no": 133
+  },
+  {
+    "id": 134,
+    "name": "Vansh Bedi",
+    "role": "wicket_keeper",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UWK2",
+    "source_list_no": 134
+  },
+  {
+    "id": 135,
+    "name": "Saurav Chauhan",
+    "role": "wicket_keeper",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UWK2",
+    "source_list_no": 135
+  },
+  {
+    "id": 136,
+    "name": "Harvik Desai",
+    "role": "wicket_keeper",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UWK2",
+    "source_list_no": 136
+  },
+  {
+    "id": 137,
+    "name": "Tom Kohler-Cadmore",
+    "role": "wicket_keeper",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "England",
+    "set_code": "UWK2",
+    "source_list_no": 137
+  },
+  {
+    "id": 138,
+    "name": "Kunal Rathore",
+    "role": "wicket_keeper",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UWK2",
+    "source_list_no": 138
+  },
+  {
+    "id": 139,
+    "name": "B.R Sharath",
+    "role": "wicket_keeper",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UWK2",
+    "source_list_no": 139
+  },
+  {
+    "id": 140,
+    "name": "Gurnoor Singh Brar",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UFA2",
+    "source_list_no": 140
+  },
+  {
+    "id": 141,
+    "name": "Mukesh Choudhary",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UFA2",
+    "source_list_no": 141
+  },
+  {
+    "id": 142,
+    "name": "Sakib Hussain",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UFA2",
+    "source_list_no": 142
+  },
+  {
+    "id": 143,
+    "name": "Vidwath Kaverappa",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UFA2",
+    "source_list_no": 143
+  },
+  {
+    "id": 144,
+    "name": "Rajan Kumar",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UFA2",
+    "source_list_no": 144
+  },
+  {
+    "id": 145,
+    "name": "Sushant Mishra",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UFA2",
+    "source_list_no": 145
+  },
+  {
+    "id": 146,
+    "name": "Arjun Tendulkar",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UFA2",
+    "source_list_no": 146
+  },
+  {
+    "id": 147,
+    "name": "Zeeshan Ansari",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "USP2",
+    "source_list_no": 147
+  },
+  {
+    "id": 148,
+    "name": "Prince Choudhary",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "USP2",
+    "source_list_no": 148
+  },
+  {
+    "id": 149,
+    "name": "Himanshu Sharma",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "USP2",
+    "source_list_no": 149
+  },
+  {
+    "id": 150,
+    "name": "M. Siddharth",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "USP2",
+    "source_list_no": 150
+  },
+  {
+    "id": 151,
+    "name": "Digvesh Singh",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "USP2",
+    "source_list_no": 151
+  },
+  {
+    "id": 152,
+    "name": "Prashant Solanki",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "USP2",
+    "source_list_no": 152
+  },
+  {
+    "id": 153,
+    "name": "Jhathavedh Subramanyan",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "USP2",
+    "source_list_no": 153
+  },
+  {
+    "id": 154,
+    "name": "Finn Allen",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "New Zealand",
+    "set_code": "BA3",
+    "source_list_no": 154
+  },
+  {
+    "id": 155,
+    "name": "Dewald Brevis",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "South Africa",
+    "set_code": "BA3",
+    "source_list_no": 155
+  },
+  {
+    "id": 156,
+    "name": "Ben Duckett",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "England",
+    "set_code": "BA3",
+    "source_list_no": 156
+  },
+  {
+    "id": 157,
+    "name": "Manish Pandey",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "BA3",
+    "source_list_no": 157
+  },
+  {
+    "id": 158,
+    "name": "Rilee Rossouw",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "South Africa",
+    "set_code": "BA3",
+    "source_list_no": 158
+  },
+  {
+    "id": 159,
+    "name": "Sherfane Rutherford",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "West Indies",
+    "set_code": "BA3",
+    "source_list_no": 159
+  },
+  {
+    "id": 160,
+    "name": "Ashton Turner",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Australia",
+    "set_code": "BA3",
+    "source_list_no": 160
+  },
+  {
+    "id": 161,
+    "name": "James Vince",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "England",
+    "set_code": "BA3",
+    "source_list_no": 161
+  },
+  {
+    "id": 162,
+    "name": "Shahbaz Ahamad",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "AL3",
+    "source_list_no": 162
+  },
+  {
+    "id": 163,
+    "name": "Moeen Ali",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "England",
+    "set_code": "AL3",
+    "source_list_no": 163
+  },
+  {
+    "id": 164,
+    "name": "Tim David",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Australia",
+    "set_code": "AL3",
+    "source_list_no": 164
+  },
+  {
+    "id": 165,
+    "name": "Deepak Hooda",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "AL3",
+    "source_list_no": 165
+  },
+  {
+    "id": 166,
+    "name": "Will Jacks",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "England",
+    "set_code": "AL3",
+    "source_list_no": 166
+  },
+  {
+    "id": 167,
+    "name": "Azmatullah Omarzai",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Afghanistan",
+    "set_code": "AL3",
+    "source_list_no": 167
+  },
+  {
+    "id": 168,
+    "name": "R. Sai Kishore",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "AL3",
+    "source_list_no": 168
+  },
+  {
+    "id": 169,
+    "name": "Romario Shepherd",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "West Indies",
+    "set_code": "AL3",
+    "source_list_no": 169
+  },
+  {
+    "id": 170,
+    "name": "Tom Banton",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "England",
+    "set_code": "WK3",
+    "source_list_no": 170
+  },
+  {
+    "id": 171,
+    "name": "Sam Billings",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "England",
+    "set_code": "WK3",
+    "source_list_no": 171
+  },
+  {
+    "id": 172,
+    "name": "Jordan Cox",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "England",
+    "set_code": "WK3",
+    "source_list_no": 172
+  },
+  {
+    "id": 173,
+    "name": "Ben McDermott",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Australia",
+    "set_code": "WK3",
+    "source_list_no": 173
+  },
+  {
+    "id": 174,
+    "name": "Kusal Mendis",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Sri Lanka",
+    "set_code": "WK3",
+    "source_list_no": 174
+  },
+  {
+    "id": 175,
+    "name": "Kusal Perera",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Sri Lanka",
+    "set_code": "WK3",
+    "source_list_no": 175
+  },
+  {
+    "id": 176,
+    "name": "Josh Philippe",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Australia",
+    "set_code": "WK3",
+    "source_list_no": 176
+  },
+  {
+    "id": 177,
+    "name": "Tim Seifert",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "New Zealand",
+    "set_code": "WK3",
+    "source_list_no": 177
+  },
+  {
+    "id": 178,
+    "name": "Nandre Burger",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "South Africa",
+    "set_code": "FA3",
+    "source_list_no": 178
+  },
+  {
+    "id": 179,
+    "name": "Spencer Johnson",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Australia",
+    "set_code": "FA3",
+    "source_list_no": 179
+  },
+  {
+    "id": 180,
+    "name": "Umran Malik",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "FA3",
+    "source_list_no": 180
+  },
+  {
+    "id": 181,
+    "name": "Mustafizur Rahman",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Bangladesh",
+    "set_code": "FA3",
+    "source_list_no": 181
+  },
+  {
+    "id": 182,
+    "name": "Ishant Sharma",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "FA3",
+    "source_list_no": 182
+  },
+  {
+    "id": 183,
+    "name": "Nuwan Thushara",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Sri Lanka",
+    "set_code": "FA3",
+    "source_list_no": 183
+  },
+  {
+    "id": 184,
+    "name": "Naveen Ul Haq",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Afghanistan",
+    "set_code": "FA3",
+    "source_list_no": 184
+  },
+  {
+    "id": 185,
+    "name": "Jaydev Unadkat",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "FA3",
+    "source_list_no": 185
+  },
+  {
+    "id": 186,
+    "name": "Umesh Yadav",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "FA3",
+    "source_list_no": 186
+  },
+  {
+    "id": 187,
+    "name": "Rishad Hossain",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Bangladesh",
+    "set_code": "SP3",
+    "source_list_no": 187
+  },
+  {
+    "id": 188,
+    "name": "Zahir Khan Pakten",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Afghanistan",
+    "set_code": "SP3",
+    "source_list_no": 188
+  },
+  {
+    "id": 189,
+    "name": "Nqabayomzi Peter",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "South Africa",
+    "set_code": "SP3",
+    "source_list_no": 189
+  },
+  {
+    "id": 190,
+    "name": "Tanveer Sangha",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Australia",
+    "set_code": "SP3",
+    "source_list_no": 190
+  },
+  {
+    "id": 191,
+    "name": "Tabraiz Shamsi",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "South Africa",
+    "set_code": "SP3",
+    "source_list_no": 191
+  },
+  {
+    "id": 192,
+    "name": "Jeffery Vandersay",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Sri Lanka",
+    "set_code": "SP3",
+    "source_list_no": 192
+  },
+  {
+    "id": 193,
+    "name": "Sachin Baby",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA3",
+    "source_list_no": 193
+  },
+  {
+    "id": 194,
+    "name": "Priyam Garg",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA3",
+    "source_list_no": 194
+  },
+  {
+    "id": 195,
+    "name": "Harnoor Pannu",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA3",
+    "source_list_no": 195
+  },
+  {
+    "id": 196,
+    "name": "Smaran Ravichandran",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA3",
+    "source_list_no": 196
+  },
+  {
+    "id": 197,
+    "name": "Shashwat Rawat",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA3",
+    "source_list_no": 197
+  },
+  {
+    "id": 198,
+    "name": "Andre Siddarth",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA3",
+    "source_list_no": 198
+  },
+  {
+    "id": 199,
+    "name": "Avneesh Sudha",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA3",
+    "source_list_no": 199
+  },
+  {
+    "id": 200,
+    "name": "Apoorv Wankhade",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA3",
+    "source_list_no": 200
+  },
+  {
+    "id": 201,
+    "name": "Yudhvir Charak",
+    "role": "all_rounder",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UAL3",
+    "source_list_no": 201
+  },
+  {
+    "id": 202,
+    "name": "Rishi Dhawan",
+    "role": "all_rounder",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UAL3",
+    "source_list_no": 202
+  },
+  {
+    "id": 203,
+    "name": "Rajvardhan Hangargekar",
+    "role": "all_rounder",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UAL3",
+    "source_list_no": 203
+  },
+  {
+    "id": 204,
+    "name": "Tanush Kotian",
+    "role": "all_rounder",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UAL3",
+    "source_list_no": 204
+  },
+  {
+    "id": 205,
+    "name": "Arshin Kulkarni",
+    "role": "all_rounder",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UAL3",
+    "source_list_no": 205
+  },
+  {
+    "id": 206,
+    "name": "Shams Mulani",
+    "role": "all_rounder",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UAL3",
+    "source_list_no": 206
+  },
+  {
+    "id": 207,
+    "name": "Shivam Singh",
+    "role": "all_rounder",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UAL3",
+    "source_list_no": 207
+  },
+  {
+    "id": 208,
+    "name": "Lalit Yadav",
+    "role": "all_rounder",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UAL3",
+    "source_list_no": 208
+  },
+  {
+    "id": 209,
+    "name": "Mohammed Azharuddeen",
+    "role": "wicket_keeper",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UWK3",
+    "source_list_no": 209
+  },
+  {
+    "id": 210,
+    "name": "L.R Chethan",
+    "role": "wicket_keeper",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UWK3",
+    "source_list_no": 210
+  },
+  {
+    "id": 211,
+    "name": "Aryaman Singh Dhaliwal",
+    "role": "wicket_keeper",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UWK3",
+    "source_list_no": 211
+  },
+  {
+    "id": 212,
+    "name": "Urvil Patel",
+    "role": "wicket_keeper",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UWK3",
+    "source_list_no": 212
+  },
+  {
+    "id": 213,
+    "name": "Sanskar Rawat",
+    "role": "wicket_keeper",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UWK3",
+    "source_list_no": 213
+  },
+  {
+    "id": 214,
+    "name": "Bipin Saurabh",
+    "role": "wicket_keeper",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UWK3",
+    "source_list_no": 214
+  },
+  {
+    "id": 215,
+    "name": "Tanay Thyagarajann",
+    "role": "wicket_keeper",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UWK3",
+    "source_list_no": 215
+  },
+  {
+    "id": 216,
+    "name": "Money Grewal",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UFA3",
+    "source_list_no": 216
+  },
+  {
+    "id": 217,
+    "name": "Ashwani Kumar",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UFA3",
+    "source_list_no": 217
+  },
+  {
+    "id": 218,
+    "name": "Ishan Porel",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UFA3",
+    "source_list_no": 218
+  },
+  {
+    "id": 219,
+    "name": "Abhilash Shetty",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UFA3",
+    "source_list_no": 219
+  },
+  {
+    "id": 220,
+    "name": "Akash Singh",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UFA3",
+    "source_list_no": 220
+  },
+  {
+    "id": 221,
+    "name": "Gurjapneet Singh",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UFA3",
+    "source_list_no": 221
+  },
+  {
+    "id": 222,
+    "name": "Basil Thampi",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UFA3",
+    "source_list_no": 222
+  },
+  {
+    "id": 223,
+    "name": "Murugan Ashwin",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "USP3",
+    "source_list_no": 223
+  },
+  {
+    "id": 224,
+    "name": "Shreyas Chavan",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "USP3",
+    "source_list_no": 224
+  },
+  {
+    "id": 225,
+    "name": "Chintal Gandhi",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "USP3",
+    "source_list_no": 225
+  },
+  {
+    "id": 226,
+    "name": "Raghav Goyal",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "USP3",
+    "source_list_no": 226
+  },
+  {
+    "id": 227,
+    "name": "Jagadeesha Suchith",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "USP3",
+    "source_list_no": 227
+  },
+  {
+    "id": 228,
+    "name": "Roshan Waghsare",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "USP3",
+    "source_list_no": 228
+  },
+  {
+    "id": 229,
+    "name": "Bailapudi Yeswanth",
+    "role": "bowler",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "USP3",
+    "source_list_no": 229
+  },
+  {
+    "id": 230,
+    "name": "Sediqullah Atal",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Afghanistan",
+    "set_code": "BA4",
+    "source_list_no": 230
+  },
+  {
+    "id": 231,
+    "name": "Matthew Breetzke",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "South Africa",
+    "set_code": "BA4",
+    "source_list_no": 231
+  },
+  {
+    "id": 232,
+    "name": "Mark Chapman",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "New Zealand",
+    "set_code": "BA4",
+    "source_list_no": 232
+  },
+  {
+    "id": 233,
+    "name": "Brandon King",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "West Indies",
+    "set_code": "BA4",
+    "source_list_no": 233
+  },
+  {
+    "id": 234,
+    "name": "Evin Lewis",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "West Indies",
+    "set_code": "BA4",
+    "source_list_no": 234
+  },
+  {
+    "id": 235,
+    "name": "Pathum Nissanka",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Sri Lanka",
+    "set_code": "BA4",
+    "source_list_no": 235
+  },
+  {
+    "id": 236,
+    "name": "Bhanuka Rajapaksa",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Sri Lanka",
+    "set_code": "BA4",
+    "source_list_no": 236
+  },
+  {
+    "id": 237,
+    "name": "Steve Smith",
+    "role": "batter",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Australia",
+    "set_code": "BA4",
+    "source_list_no": 237
+  },
+  {
+    "id": 238,
+    "name": "Gus Atkinson",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "England",
+    "set_code": "AL4",
+    "source_list_no": 238
+  },
+  {
+    "id": 239,
+    "name": "Tom Curran",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "England",
+    "set_code": "AL4",
+    "source_list_no": 239
+  },
+  {
+    "id": 240,
+    "name": "Krishnappa Gowtham",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "AL4",
+    "source_list_no": 240
+  },
+  {
+    "id": 241,
+    "name": "Mohammad Nabi",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Afghanistan",
+    "set_code": "AL4",
+    "source_list_no": 241
+  },
+  {
+    "id": 242,
+    "name": "Gulbadin Naib",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Afghanistan",
+    "set_code": "AL4",
+    "source_list_no": 242
+  },
+  {
+    "id": 243,
+    "name": "Sikandar Raza",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Zimbabwe",
+    "set_code": "AL4",
+    "source_list_no": 243
+  },
+  {
+    "id": 244,
+    "name": "Mitchell Santner",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "New Zealand",
+    "set_code": "AL4",
+    "source_list_no": 244
+  },
+  {
+    "id": 245,
+    "name": "Jayant Yadav",
+    "role": "all_rounder",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "AL4",
+    "source_list_no": 245
+  },
+  {
+    "id": 246,
+    "name": "Johnson Charles",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "West Indies",
+    "set_code": "WK4",
+    "source_list_no": 246
+  },
+  {
+    "id": 247,
+    "name": "Litton Das",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Bangladesh",
+    "set_code": "WK4",
+    "source_list_no": 247
+  },
+  {
+    "id": 248,
+    "name": "Andre Fletcher",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "West Indies",
+    "set_code": "WK4",
+    "source_list_no": 248
+  },
+  {
+    "id": 249,
+    "name": "Tom Latham",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "New Zealand",
+    "set_code": "WK4",
+    "source_list_no": 249
+  },
+  {
+    "id": 250,
+    "name": "Ollie Pope",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "England",
+    "set_code": "WK4",
+    "source_list_no": 250
+  },
+  {
+    "id": 251,
+    "name": "Kyle Verreynne",
+    "role": "wicket_keeper",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "South Africa",
+    "set_code": "WK4",
+    "source_list_no": 251
+  },
+  {
+    "id": 252,
+    "name": "Fazalhaq Farooqi",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "Afghanistan",
+    "set_code": "FA4",
+    "source_list_no": 252
+  },
+  {
+    "id": 253,
+    "name": "Richard Gleeson",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "England",
+    "set_code": "FA4",
+    "source_list_no": 253
+  },
+  {
+    "id": 254,
+    "name": "Matt Henry",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "New Zealand",
+    "set_code": "FA4",
+    "source_list_no": 254
+  },
+  {
+    "id": 255,
+    "name": "Alzarri Joseph",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "West Indies",
+    "set_code": "FA4",
+    "source_list_no": 255
+  },
+  {
+    "id": 256,
+    "name": "Kwena Maphaka",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "South Africa",
+    "set_code": "FA4",
+    "source_list_no": 256
+  },
+  {
+    "id": 257,
+    "name": "Kuldeep Sen",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "India",
+    "set_code": "FA4",
+    "source_list_no": 257
+  },
+  {
+    "id": 258,
+    "name": "Reece Topley",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "England",
+    "set_code": "FA4",
+    "source_list_no": 258
+  },
+  {
+    "id": 259,
+    "name": "Lizaad Williams",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "South Africa",
+    "set_code": "FA4",
+    "source_list_no": 259
+  },
+  {
+    "id": 260,
+    "name": "Luke Wood",
+    "role": "bowler",
+    "tier": "capped",
+    "base_price": 1.0,
+    "country": "England",
+    "set_code": "FA4",
+    "source_list_no": 260
+  },
+  {
+    "id": 261,
+    "name": "Sachin Dhas",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA4",
+    "source_list_no": 261
+  },
+  {
+    "id": 262,
+    "name": "Leus Du Plooy",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "England",
+    "set_code": "UBA4",
+    "source_list_no": 262
+  },
+  {
+    "id": 263,
+    "name": "Ashwin Hebbar",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA4",
+    "source_list_no": 263
+  },
+  {
+    "id": 264,
+    "name": "Rohan Kunnummal",
+    "role": "batter",
+    "tier": "uncapped",
+    "base_price": 0.5,
+    "country": "India",
+    "set_code": "UBA4",
+    "source_list_no": 264
+  }
+]

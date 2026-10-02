@@ -1,0 +1,539 @@
+{% extends "base.html" %}
+{% block title %}Auction Floor{% endblock %}
+{% block page_title %}Live Auction{% endblock %}
+{% block page_subtitle %}Marquee → Capped → Uncapped · re-auction if needed{% endblock %}
+
+{% block content %}
+<div id="auction-root">
+    <div class="flex items-center justify-center py-20 text-[var(--text-secondary)]">Loading auction...</div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let STATE = null;
+let SELECTED_TEAM = null;
+let ROADMAP_OPEN = {};
+let ROOM_CODE = '';
+let CLIENT_ID = localStorage.getItem('ipl_client_id') || '';
+let POLL_TIMER = null;
+
+function ensureClientId() {
+    if (!CLIENT_ID) {
+        CLIENT_ID = 'c_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+        localStorage.setItem('ipl_client_id', CLIENT_ID);
+    }
+    return CLIENT_ID;
+}
+
+function roomPayload(extra) {
+    const o = Object.assign({}, extra || {});
+    if (ROOM_CODE) {
+        o.room_code = ROOM_CODE;
+        o.client_id = ensureClientId();
+    }
+    return o;
+}
+
+function stateUrl() {
+    if (!ROOM_CODE) return '/api/state';
+    return '/api/state?room_code=' + encodeURIComponent(ROOM_CODE) +
+        '&client_id=' + encodeURIComponent(ensureClientId());
+}
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    ensureClientId();
+    const params = new URLSearchParams(window.location.search);
+    ROOM_CODE = params.get('room') || localStorage.getItem('ipl_room_code') || '';
+    if (ROOM_CODE) localStorage.setItem('ipl_room_code', ROOM_CODE);
+    refresh();
+    if (ROOM_CODE) POLL_TIMER = setInterval(refresh, 1500);
+});
+
+let LAST_CPU_PLAYER_ID = null;
+
+async function refresh() {
+    try {
+        const data = await fetchJSON(stateUrl());
+        STATE = data.state;
+        if (STATE.status === 'finished') {
+            window.location.href = BASE_PATH + '/results';
+            return;
+        }
+        if (STATE.status === 'setup') {
+            window.location.href = BASE_PATH + '/';
+            return;
+        }
+        if (STATE.solo_mode && STATE.human_team_id) {
+            SELECTED_TEAM = STATE.human_team_id;
+        } else if (STATE.room_mode && STATE.room && STATE.room.my_team_id) {
+            SELECTED_TEAM = STATE.room.my_team_id;
+        } else if (SELECTED_TEAM != null && !STATE.teams.find(t => t.id === SELECTED_TEAM && t.can_bid)) {
+            SELECTED_TEAM = null;
+        }
+        render();
+        await maybeAutoCpuRound();
+    } catch (e) {
+        document.getElementById('auction-root').innerHTML =
+            '<p class="text-red-600">' + e.message + '</p>';
+    }
+}
+
+async function maybeAutoCpuRound() {
+    if (!STATE || !STATE.solo_mode || STATE.status !== 'auction') return;
+    const pid = STATE.current_player && STATE.current_player.id;
+    if (!pid || pid === LAST_CPU_PLAYER_ID) return;
+    // First look at a new player: let CPUs open the bidding
+    LAST_CPU_PLAYER_ID = pid;
+    await runCpuRound(false);
+}
+
+async function runCpuRound(showEmptyToast) {
+    if (!STATE || !STATE.solo_mode) return;
+    try {
+        const data = await fetchJSON('/api/cpu-round', { method: 'POST', body: '{}' });
+        STATE = data.state;
+        const actions = data.cpu_actions || STATE.cpu_actions || [];
+        if (actions.length) {
+            const last = actions[actions.length - 1];
+            toast('CPU: ' + last.team_name + ' → ' + money(last.amount) +
+                (actions.length > 1 ? ' (' + actions.length + ' bids)' : ''));
+        } else if (showEmptyToast) {
+            toast('No CPU interest at this price');
+        }
+        if (STATE.solo_mode && STATE.human_team_id) SELECTED_TEAM = STATE.human_team_id;
+        render();
+    } catch (e) {
+        toast(e.message, true);
+    }
+}
+
+function render() {
+    const s = STATE;
+    const p = s.current_player;
+    const bid = s.current_bid || {};
+    const tr = s.category_tracker || {};
+    const root = document.getElementById('auction-root');
+    const progressPct = s.auction_pool_size
+        ? Math.round((s.processed_count / s.auction_pool_size) * 100)
+        : 0;
+
+    let html = '';
+    html += '<div class="mb-4 flex flex-wrap items-center justify-between gap-3">';
+    html += '<div class="text-sm text-[var(--text-secondary)]">';
+    html += 'Round <strong>' + (s.round || 1) + '</strong>' +
+        (s.round === 2 ? ' <span class="text-amber-600">(re-auction)</span>' : '');
+    html += ' · Done <strong>' + s.processed_count + '</strong> / ' + s.auction_pool_size;
+    html += ' · Sold <strong class="text-auction-gold">' + s.sold_count + '</strong>';
+    html += ' · Unsold <strong class="text-slate-500">' + (s.unsold_count || 0) + '</strong>';
+    html += ' · Left <strong>' + s.remaining_count + '</strong></div>';
+    html += '<button onclick="resetAuction()" class="text-xs px-3 py-1.5 rounded-lg border border-[var(--border)] hover:bg-[var(--bg-elevated)]">Reset auction</button>';
+    html += '</div>';
+    html += '<div class="h-1.5 rounded-full bg-[var(--bg-elevated)] mb-6"><div class="h-1.5 rounded-full bg-auction-gold" style="width:' + progressPct + '%"></div></div>';
+
+    html += '<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">';
+
+    // ===== Category tracker / roadmap (left) =====
+    html += '<div class="xl:col-span-3 order-2 xl:order-1">';
+    html += '<div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4 sticky top-20 max-h-[80vh] overflow-y-auto">';
+    html += '<div class="flex items-center justify-between mb-2">';
+    html += '<h3 class="text-sm font-bold">Auction roadmap</h3>';
+    html += '<span class="text-[0.65rem] text-[var(--text-muted)]">' + (s.remaining_count || 0) + ' left</span>';
+    html += '</div>';
+    html += '<p class="text-[0.65rem] text-[var(--text-muted)] mb-3">Tap a category to peek ahead. Current set stays open.</p>';
+
+    const pipeline = s.auction_pipeline || [];
+    if (!pipeline.length) {
+        html += '<p class="text-xs text-[var(--text-muted)]">No players in pool.</p>';
+    } else {
+        pipeline.forEach((g, gi) => {
+            const defaultOpen = !!g.is_current;
+            const isOpen = (ROADMAP_OPEN[gi] === true) || (ROADMAP_OPEN[gi] == null && defaultOpen);
+            const border = g.is_current
+                ? 'border-auction-gold/60 bg-amber-50/40 dark:bg-amber-950/10'
+                : (g.is_past ? 'border-[var(--border)] opacity-55' : 'border-[var(--border)]');
+
+            html += '<div class="mb-1.5 rounded-lg border ' + border + ' overflow-hidden">';
+            html += '<button type="button" onclick="toggleRoadmap(' + gi + ')" class="w-full flex items-center gap-1.5 px-2 py-1.5 text-left hover:bg-[var(--bg-elevated)]/50">';
+            html += '<span class="material-icons text-sm text-[var(--text-muted)]">' + (isOpen ? 'expand_more' : 'chevron_right') + '</span>';
+            html += '<div class="min-w-0 flex-1">';
+            html += '<div class="text-xs font-semibold truncate">' + escapeHtml(g.label) + '</div>';
+            if (!isOpen && !g.is_past && (g.preview_names || []).length) {
+                html += '<div class="text-[0.65rem] text-[var(--text-muted)] truncate">' +
+                    escapeHtml(g.preview_names.join(' · ')) +
+                    (g.remaining_count > g.preview_names.length ? '…' : '') + '</div>';
+            } else if (!isOpen && g.is_past) {
+                html += '<div class="text-[0.65rem] text-[var(--text-muted)]">Done</div>';
+            }
+            html += '</div>';
+            html += '<div class="shrink-0 text-[0.65rem] font-bold tabular-nums ' +
+                (g.is_current ? 'text-auction-gold' : 'text-[var(--text-muted)]') + '">' +
+                (g.is_past ? '✓' : (g.remaining_count + '/' + g.total)) + '</div>';
+            html += '</button>';
+
+            if (isOpen) {
+                html += '<div class="px-2 pb-2 max-h-48 overflow-y-auto space-y-0.5">';
+                (g.players || []).forEach(pl => {
+                    const st = pl.status;
+                    if (st === 'current') {
+                        html += '<div class="flex items-center gap-2 text-xs px-2 py-1.5 rounded-md border border-auction-gold bg-amber-50 dark:bg-amber-950/20 font-bold">';
+                        html += '<span class="text-auction-gold text-[0.6rem] uppercase shrink-0">Now</span>';
+                        html += '<span class="truncate">' + escapeHtml(pl.name) + '</span></div>';
+                    } else if (st === 'upcoming') {
+                        html += '<div class="flex items-center justify-between gap-2 text-xs px-2 py-1 rounded-md">';
+                        html += '<span class="truncate text-[var(--text-secondary)]">' + escapeHtml(pl.name) + '</span>';
+                        html += '<span class="shrink-0 text-[0.6rem] text-[var(--text-muted)]">' +
+                            (pl.base_price != null ? Number(pl.base_price).toFixed(1) : '') + '</span></div>';
+                    } else {
+                        const unsold = st === 'unsold';
+                        html += '<div class="flex items-center justify-between gap-2 text-[0.7rem] px-2 py-0.5 opacity-65">';
+                        html += '<span class="truncate ' + (unsold ? 'line-through text-[var(--text-muted)]' : '') + '">' +
+                            escapeHtml(pl.name) + '</span>';
+                        html += '<span class="shrink-0 text-[var(--text-muted)]">' +
+                            (unsold ? 'U' : money(pl.sold_price)) + '</span></div>';
+                    }
+                });
+                html += '</div>';
+            }
+            html += '</div>';
+        });
+    }
+
+    html += '</div></div>';
+
+    // ===== Main floor =====
+    // ===== Main floor =====
+    html += '<div class="xl:col-span-6 order-1 xl:order-2 space-y-4">';
+    html += '<div class="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] p-6 auction-live">';
+    if (p) {
+        html += '<div class="flex items-start justify-between gap-4">';
+        html += '<div>';
+        html += '<div class="text-xs uppercase tracking-widest text-[var(--text-muted)] mb-1">Now auctioning · Round ' + (s.round || 1) + ' · #' + (s.current_index + 1) + ' of ' + s.auction_pool_size + '</div>';
+        html += '<div class="display-font text-5xl md:text-6xl leading-none mb-2">' + escapeHtml(p.name) + '</div>';
+        const tierLab = (s.tier_labels && p.tier) ? (s.tier_labels[p.tier] || p.tier) : (p.tier || '');
+        html += '<div class="flex flex-wrap gap-1.5">' +
+            (tierLab ? '<span class="inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-900">' + tierLab + '</span>' : '') +
+            '<span class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ' + roleClass(p.role) + '">' +
+            roleLabel(p.role, s.role_labels) + '</span></div>';
+        html += '</div>';
+        html += '<div class="text-right">';
+        html += '<div class="text-xs text-[var(--text-muted)] uppercase">Base</div>';
+        html += '<div class="text-2xl font-bold">' + money(s.base_price) + '</div>';
+        html += '</div></div>';
+
+        html += '<div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">';
+        html += '<div class="rounded-xl bg-[var(--bg-elevated)] p-4">';
+        html += '<div class="text-xs text-[var(--text-muted)] uppercase mb-1">Current bid</div>';
+        if (bid.team_id) {
+            html += '<div class="text-3xl font-bold text-auction-gold">' + money(bid.amount) + '</div>';
+            html += '<div class="text-sm text-[var(--text-secondary)] mt-1">' + escapeHtml(bid.team_name) + '</div>';
+        } else {
+            html += '<div class="text-3xl font-bold text-[var(--text-muted)]">—</div>';
+            html += '<div class="text-sm text-[var(--text-secondary)] mt-1">No bids yet</div>';
+        }
+        html += '</div>';
+        html += '<div class="rounded-xl bg-[var(--bg-elevated)] p-4">';
+        html += '<div class="text-xs text-[var(--text-muted)] uppercase mb-1">Next min bid</div>';
+        html += '<div class="text-3xl font-bold">' + money(s.next_min_bid) + '</div>';
+        html += '<div class="text-sm text-[var(--text-secondary)] mt-1">Step ' + money(s.bid_increment) + '</div>';
+        html += '</div>';
+        html += '<div class="rounded-xl p-4 flex flex-col justify-center gap-2 ' +
+            (bid.team_id ? 'bg-orange-700 text-white' : 'bg-slate-600 text-white') + '">';
+        const canHammer = !(s.room_mode && s.room && !s.room.is_host);
+        if (bid.team_id) {
+            if (canHammer) {
+                html += '<button onclick="sellPlayer()" class="w-full inline-flex items-center justify-center gap-2 px-3 py-3 rounded-lg text-sm font-black tracking-wide bg-white text-orange-800 hover:bg-orange-50">' +
+                    '<span class="material-icons text-xl">gavel</span> HAMMER · SOLD</button>';
+                html += '<div class="text-[0.7rem] text-center opacity-90">Sell to ' + escapeHtml(bid.team_name) + ' @ ' + money(bid.amount) + '</div>';
+            } else {
+                html += '<div class="text-center text-sm font-bold">Waiting on host hammer</div>';
+                html += '<div class="text-[0.7rem] text-center opacity-90">' + escapeHtml(bid.team_name) + ' @ ' + money(bid.amount) + '</div>';
+            }
+        } else {
+            if (canHammer) {
+                html += '<button onclick="unsoldPlayer()" class="w-full inline-flex items-center justify-center gap-2 px-3 py-3 rounded-lg text-sm font-black tracking-wide bg-white text-slate-800 hover:bg-slate-100">' +
+                    '<span class="material-icons text-xl">block</span> UNSOLD</button>';
+                html += '<div class="text-[0.7rem] text-center opacity-90">No bids — pass this player</div>';
+            } else {
+                html += '<div class="text-center text-sm opacity-90">Host will mark UNSOLD if needed</div>';
+            }
+        }
+        html += '</div></div>';
+    } else {
+        html += '<div class="text-center py-8">No player on the block.</div>';
+    }
+    html += '</div>';
+
+    // Bid controls
+    html += '<div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-5">';
+    if (s.solo_mode) {
+        html += '<div class="mb-3 flex flex-wrap items-center justify-between gap-2">';
+        html += '<h3 class="text-sm font-semibold">You vs CPU</h3>';
+        html += '<button onclick="runCpuRound(true)" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border border-indigo-300 text-indigo-700 bg-indigo-50 hover:bg-indigo-100">' +
+            '<span class="material-icons text-sm">smart_toy</span> Let CPUs bid</button>';
+        html += '</div>';
+        html += '<p class="text-xs text-[var(--text-muted)] mb-3">You bid for your team. CPUs bid automatically on each new player (or tap the button). Then hammer <strong>SOLD</strong> / <strong>UNSOLD</strong>.</p>';
+    } else {
+        html += '<h3 class="text-sm font-semibold mb-3">Who is bidding?</h3>';
+    }
+    html += '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">';
+    if (s.room_mode && s.room) {
+        html += '<div class="mb-3 text-xs text-[var(--text-muted)]">Room <strong class="tracking-widest text-auction-gold">' +
+            escapeHtml(s.room.code) + '</strong>' +
+            (s.room.is_host ? ' · You are host' : '') +
+            (s.room.my_team_id ? '' : ' · Claim a team to bid') + '</div>';
+    }
+    s.teams.forEach(t => {
+        const selected = SELECTED_TEAM === t.id;
+        const isHuman = s.solo_mode && t.id === s.human_team_id;
+        const isCpu = s.solo_mode && t.is_cpu;
+        const claim = s.room_mode && s.room && s.room.claims ? s.room.claims[t.id] : null;
+        const isMine = s.room_mode && s.room && s.room.my_team_id === t.id;
+        const roomLocked = s.room_mode && (!isMine);
+        const disabled = !t.can_bid || isCpu || roomLocked;
+        html += '<button ' + (disabled ? 'disabled' : '') + ' onclick="selectTeam(' + t.id + ')" ' +
+            'class="text-left px-3 py-3 rounded-lg border transition-colors ' +
+            (disabled ? 'opacity-40 cursor-not-allowed border-[var(--border)]' :
+                selected ? 'border-auction-gold bg-amber-50 dark:bg-amber-950/30' : 'border-[var(--border)] hover:border-auction-gold') + '">';
+        html += '<div class="font-semibold text-sm flex items-center gap-2">' + escapeHtml(t.name);
+        if (isHuman || isMine) html += '<span class="text-[0.65rem] px-1.5 py-0.5 rounded bg-auction-gold text-slate-900">YOU</span>';
+        if (isCpu) html += '<span class="text-[0.65rem] px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800">CPU</span>';
+        if (claim && !isMine) html += '<span class="text-[0.65rem] px-1.5 py-0.5 rounded bg-[var(--bg-elevated)]">' + escapeHtml(claim.name) + '</span>';
+        if (s.room_mode && !claim) html += '<button onclick="claimTeamAuction(' + t.id + ')" class="text-[0.65rem] px-1.5 py-0.5 rounded bg-auction-navy text-white">Claim</button>';
+        html += '</div>';
+        html += '<div class="text-xs text-[var(--text-secondary)]">' + money(t.remaining_budget) + ' left · ' +
+            t.players.length + '/' + (s.max_squad_size || 20) + ' · ' + t.slots_left + ' slots left · max ' + money(t.max_bid) + '</div>';
+        html += '</button>';
+    });
+    html += '</div>';
+
+    html += '<div class="flex flex-wrap items-end gap-2 mb-3">';
+    html += '<div>';
+    html += '<label class="block text-[0.65rem] uppercase tracking-wider text-[var(--text-muted)] mb-1">Custom bid (Cr)</label>';
+    html += '<input id="custom-bid-input" type="number" min="' + s.next_min_bid + '" step="0.5" value="' + s.next_min_bid + '" ' +
+        'class="w-28 px-3 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--bg-page)] text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-auction-gold/40" />';
+    html += '</div>';
+    html += '<button onclick="placeCustomBid()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-amber-600 text-white text-sm font-bold hover:bg-amber-500">' +
+        '<span class="material-icons text-base">bolt</span> Jump bid</button>';
+    html += '<button onclick="placeBid()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-auction-navy text-white text-sm font-bold hover:opacity-90">' +
+        '<span class="material-icons text-base">trending_up</span> +' + money(s.bid_increment) + ' → ' + money(s.next_min_bid) + '</button>';
+    const canHammerBar = !(s.room_mode && s.room && !s.room.is_host);
+    if (canHammerBar) {
+        html += '<button onclick="sellPlayer()" ' + (!bid.team_id ? 'disabled' : '') +
+            ' class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-orange-700 text-white text-sm font-black hover:bg-orange-600 disabled:opacity-40 disabled:cursor-not-allowed">' +
+            '<span class="material-icons text-base">gavel</span> SOLD</button>';
+        html += '<button onclick="unsoldPlayer()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-600 text-white text-sm font-black hover:bg-slate-500">' +
+            '<span class="material-icons text-base">block</span> UNSOLD</button>';
+    } else {
+        html += '<span class="text-xs text-[var(--text-muted)] self-center">Host controls SOLD / UNSOLD</span>';
+    }
+    html += '</div>';
+    html += '<div class="flex flex-wrap gap-1.5 mb-2">';
+    const jumps = [2, 3, 5, 8, 10, 15, 20].filter(v => v >= s.next_min_bid);
+    jumps.forEach(v => {
+        html += '<button onclick="placeBidAmount(' + v + ')" class="px-2.5 py-1 rounded-md text-xs font-semibold border border-[var(--border)] bg-[var(--bg-elevated)] hover:border-auction-gold">' +
+            v.toFixed(1) + ' Cr</button>';
+    });
+    html += '</div>';
+    html += '<p class="text-xs text-[var(--text-muted)]">Bid or jump → <strong>SOLD</strong>. No interest → <strong>UNSOLD</strong> (works even if a bid is active — clears it).</p>';
+    html += '</div>';
+
+    // Recent
+    html += '<div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-5">';
+    html += '<h3 class="text-sm font-semibold mb-3">Recent</h3>';
+    const recent = (s.history || []).slice().reverse().slice(0, 8);
+    if (!recent.length) {
+        html += '<p class="text-sm text-[var(--text-muted)]">Nothing yet.</p>';
+    } else {
+        html += '<div class="space-y-2">';
+        recent.forEach(h => {
+            const unsold = h.outcome === 'unsold' || (!h.team_name && !h.price);
+            html += '<div class="flex items-center justify-between text-sm border-b border-[var(--border)] pb-2">';
+            html += '<div><span class="font-medium ' + (unsold ? 'line-through text-[var(--text-muted)]' : '') + '">' + escapeHtml(h.player_name) + '</span>';
+            if (unsold) {
+                html += '<span class="text-[var(--text-muted)]"> · Unsold</span>';
+            } else {
+                html += '<span class="text-[var(--text-muted)]"> → ' + escapeHtml(h.team_name) + '</span>';
+            }
+            html += '</div>';
+            html += '<div class="font-semibold ' + (unsold ? 'text-[var(--text-muted)]' : 'text-auction-gold') + '">' +
+                (unsold ? '—' : money(h.price)) + '</div>';
+            html += '</div>';
+        });
+        html += '</div>';
+    }
+    html += '</div>';
+    html += '</div>';
+
+    // Team squads
+    html += '<div class="xl:col-span-3 order-3 space-y-4">';
+    s.teams.forEach(t => {
+        html += '<div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">';
+        html += '<div class="flex items-center justify-between mb-2">';
+        html += '<div class="font-bold">' + escapeHtml(t.name) + '</div>';
+        html += '<div class="text-xs text-[var(--text-secondary)]">' + t.players.length + '/' + (s.max_squad_size || 20) +
+            ' <span class="text-[var(--text-muted)]">(min ' + (s.min_squad_size || 15) + ')</span></div>';
+        html += '</div>';
+        html += '<div class="text-xs text-[var(--text-muted)] mb-2">Spent ' + money(t.spent) + ' · Purse ' + money(t.remaining_budget) + '</div>';
+        if (!t.players.length) {
+            html += '<p class="text-xs text-[var(--text-muted)]">Empty squad</p>';
+        } else {
+            html += '<div class="space-y-1 max-h-40 overflow-y-auto">';
+            t.players.forEach(pl => {
+                html += '<div class="flex items-center justify-between text-xs gap-2">';
+                html += '<span class="truncate">' + escapeHtml(pl.name) +
+                    ' <span class="opacity-60">' + roleLabel(pl.role, s.role_labels).split(' ')[0] + '</span></span>';
+                html += '<span class="font-semibold shrink-0">' + money(pl.sold_price) + '</span>';
+                html += '</div>';
+            });
+            html += '</div>';
+        }
+        html += '</div>';
+    });
+    html += '</div>';
+
+    html += '</div>';
+    root.innerHTML = html;
+}
+
+function toggleRoadmap(gi) {
+    const g = (STATE.auction_pipeline || [])[gi];
+    const defaultOpen = g && g.is_current;
+    const cur = (ROADMAP_OPEN[gi] === true) || (ROADMAP_OPEN[gi] == null && defaultOpen);
+    ROADMAP_OPEN[gi] = !cur;
+    render();
+}
+
+function selectTeam(id) {
+    SELECTED_TEAM = id;
+    render();
+}
+
+async function placeBid() {
+    if (!SELECTED_TEAM) {
+        toast('Select a bidding team first', true);
+        return;
+    }
+    try {
+        const data = await fetchJSON('/api/bid', {
+            method: 'POST',
+            body: JSON.stringify(roomPayload({ team_id: SELECTED_TEAM })),
+        });
+        STATE = data.state;
+        toast(STATE.current_bid.team_name + ' → ' + money(STATE.current_bid.amount));
+        render();
+        if (STATE.solo_mode) await runCpuRound(false);
+    } catch (e) {
+        toast(e.message, true);
+    }
+}
+
+async function placeBidAmount(amount) {
+    if (!SELECTED_TEAM) {
+        toast('Select a bidding team first', true);
+        return;
+    }
+    const amt = Math.round(Number(amount) * 2) / 2;
+    if (!(amt >= STATE.next_min_bid)) {
+        toast('Bid must be at least ' + money(STATE.next_min_bid), true);
+        return;
+    }
+    try {
+        const data = await fetchJSON('/api/bid', {
+            method: 'POST',
+            body: JSON.stringify(roomPayload({ team_id: SELECTED_TEAM, amount: amt })),
+        });
+        STATE = data.state;
+        toast(STATE.current_bid.team_name + ' → ' + money(STATE.current_bid.amount));
+        render();
+        if (STATE.solo_mode) await runCpuRound(false);
+    } catch (e) {
+        toast(e.message, true);
+    }
+}
+
+async function placeCustomBid() {
+    const el = document.getElementById('custom-bid-input');
+    if (!el) return;
+    await placeBidAmount(el.value);
+}
+
+async function claimTeamAuction(teamId) {
+    try {
+        const data = await fetchJSON('/api/rooms/claim', {
+            method: 'POST',
+            body: JSON.stringify(roomPayload({ team_id: teamId })),
+        });
+        STATE = data.state;
+        SELECTED_TEAM = STATE.room && STATE.room.my_team_id;
+        toast('Claimed team');
+        render();
+    } catch (e) { toast(e.message, true); }
+}
+
+async function sellPlayer() {
+    if (STATE.room_mode && STATE.room && !STATE.room.is_host) {
+        toast('Only the host can hammer SOLD', true);
+        return;
+    }
+
+    try {
+        const data = await fetchJSON('/api/sell', { method: 'POST', body: JSON.stringify(roomPayload({})) });
+        STATE = data.state;
+        const last = (STATE.history || []).slice(-1)[0];
+        if (last) toast('SOLD! ' + last.player_name + ' to ' + last.team_name + ' for ' + money(last.price));
+        if (STATE.status === 'finished') {
+            window.location.href = BASE_PATH + '/results';
+            return;
+        }
+        if (STATE.solo_mode && STATE.human_team_id) SELECTED_TEAM = STATE.human_team_id;
+        else SELECTED_TEAM = null;
+        LAST_CPU_PLAYER_ID = null;
+        render();
+        await maybeAutoCpuRound();
+    } catch (e) {
+        toast(e.message, true);
+    }
+}
+
+async function unsoldPlayer() {
+    if (STATE.room_mode && STATE.room && !STATE.room.is_host) {
+        toast('Only the host can mark UNSOLD', true);
+        return;
+    }
+
+    try {
+        const data = await fetchJSON('/api/unsold', { method: 'POST', body: JSON.stringify(roomPayload({})) });
+        STATE = data.state;
+        const last = (STATE.history || []).slice(-1)[0];
+        if (last) toast('Unsold: ' + last.player_name);
+        if (STATE.status === 'finished') {
+            window.location.href = BASE_PATH + '/results';
+            return;
+        }
+        if (STATE.solo_mode && STATE.human_team_id) SELECTED_TEAM = STATE.human_team_id;
+        else SELECTED_TEAM = null;
+        LAST_CPU_PLAYER_ID = null;
+        render();
+        await maybeAutoCpuRound();
+    } catch (e) {
+        toast(e.message, true);
+    }
+}
+
+async function resetAuction() {
+    if (!confirm('Reset and return to setup? Current auction will be lost.')) return;
+    await fetchJSON('/api/reset', { method: 'POST', body: '{}' });
+    window.location.href = BASE_PATH + '/';
+}
+
+function escapeHtml(str) {
+    return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+</script>
+{% endblock %}

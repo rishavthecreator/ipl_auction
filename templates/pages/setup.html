@@ -4,11 +4,13 @@
 {% block page_subtitle %}Local multi · room codes · public play{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto space-y-4">
-    <div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4 sm:p-6">
-        <div class="flex items-center gap-2 mb-5 text-[0.7rem] uppercase tracking-wider text-[var(--text-muted)]" id="step-dots"></div>
-        <div id="wizard-body"></div>
-        <p id="setup-error" class="text-red-600 text-sm mt-3 hidden"></p>
+<div class="min-h-[calc(100dvh-7.5rem)] flex items-center justify-center px-1">
+    <div class="w-full max-w-xl sm:max-w-2xl mx-auto space-y-4">
+        <div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4 sm:p-6 shadow-sm">
+            <div class="flex items-center justify-center gap-2 mb-5 text-[0.7rem] uppercase tracking-wider text-[var(--text-muted)]" id="step-dots"></div>
+            <div id="wizard-body"></div>
+            <p id="setup-error" class="text-red-600 text-sm mt-3 hidden text-center"></p>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -80,24 +82,34 @@ function renderWizard() {
 }
 
 function cardBtn(onclick, icon, title, sub, active) {
-    return '<button type="button" onclick="' + onclick + '" class="w-full text-left px-4 py-4 rounded-xl border transition-colors mb-3 ' +
+    return '<button type="button" onclick="' + onclick + '" class="w-full text-left px-4 py-4 rounded-xl border transition-colors mb-3 min-h-[4.75rem] ' +
         (active ? 'border-auction-gold bg-amber-50/50 dark:bg-amber-950/20' : 'border-[var(--border)] hover:border-auction-gold') + '">' +
-        '<div class="flex items-start gap-3"><span class="material-icons text-auction-gold">' + icon + '</span>' +
-        '<div><div class="font-bold text-sm">' + title + '</div>' +
-        '<div class="text-xs text-[var(--text-secondary)] mt-0.5">' + sub + '</div></div></div></button>';
+        '<div class="flex items-center gap-3">' +
+        '<span class="material-icons text-auction-gold shrink-0 w-6 text-center">' + icon + '</span>' +
+        '<div class="min-w-0 flex-1">' +
+        '<div class="font-bold text-sm leading-5">' + title + '</div>' +
+        '<div class="text-xs text-[var(--text-secondary)] mt-0.5 leading-snug">' + sub + '</div>' +
+        '</div></div></button>';
 }
 
 function disabledCard(icon, title, sub) {
-    return '<div class="w-full text-left px-4 py-4 rounded-xl border border-dashed border-[var(--border)] mb-3 opacity-70 cursor-not-allowed">' +
-        '<div class="flex items-start gap-3"><span class="material-icons text-[var(--text-muted)]">' + icon + '</span>' +
-        '<div><div class="font-bold text-sm flex items-center gap-2">' + title +
-        '<span class="text-[0.65rem] px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200">DEVELOPING</span></div>' +
-        '<div class="text-xs text-[var(--text-secondary)] mt-0.5">' + sub + '</div></div></div></div>';
+    return '<div class="w-full text-left px-4 py-4 rounded-xl border border-dashed border-[var(--border)] mb-3 min-h-[4.75rem] opacity-70 cursor-not-allowed">' +
+        '<div class="flex items-center gap-3">' +
+        '<span class="material-icons text-[var(--text-muted)] shrink-0 w-6 text-center">' + icon + '</span>' +
+        '<div class="min-w-0 flex-1">' +
+        '<div class="flex items-center gap-2 flex-wrap">' +
+        '<span class="font-bold text-sm leading-5">' + title + '</span>' +
+        '<span class="text-[0.65rem] px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200 shrink-0">DEVELOPING</span>' +
+        '</div>' +
+        '<div class="text-xs text-[var(--text-secondary)] mt-0.5 leading-snug">' + sub + '</div>' +
+        '</div></div></div>';
 }
 
 function stepMode() {
-    return '<h2 class="display-font text-2xl sm:text-3xl text-[var(--accent)] mb-1">HOW ARE YOU PLAYING?</h2>' +
-        '<p class="text-sm text-[var(--text-secondary)] mb-5">Public multiplayer is live. Single player is still being tuned.</p>' +
+    return '<div class="text-center mb-5">' +
+        '<h2 class="display-font text-2xl sm:text-3xl text-[var(--accent)] mb-1">HOW ARE YOU PLAYING?</h2>' +
+        '<p class="text-sm text-[var(--text-secondary)]">Public multiplayer is live. Single player is still being tuned.</p>' +
+        '</div>' +
         disabledCard('smart_toy', 'Single player', 'You vs CPU — Developing (coming soon)') +
         cardBtn("chooseMode('multi_local')", 'groups', 'Multiplayer (locally)', 'Same screen / party mode — anyone can bid for any team', PLAY_MODE === 'multi_local') +
         cardBtn("chooseMode('multi_room')", 'vpn_key', 'Multiplayer (create a room code)', 'You host · share code · friends join on their devices', PLAY_MODE === 'multi_room') +
@@ -127,8 +139,10 @@ function allStarsYearPicker() {
 }
 
 function stepPool() {
-    let html = '<h2 class="display-font text-2xl sm:text-3xl text-[var(--accent)] mb-1">WHICH POOL?</h2>' +
-        '<p class="text-sm text-[var(--text-secondary)] mb-5">Names show on the auction floor after start.</p>' +
+    let html = '<div class="text-center mb-5">' +
+        '<h2 class="display-font text-2xl sm:text-3xl text-[var(--accent)] mb-1">WHICH POOL?</h2>' +
+        '<p class="text-sm text-[var(--text-secondary)]">Names show on the auction floor after start.</p>' +
+        '</div>' +
         cardBtn("choosePool('all_stars')", 'star', 'All Stars auction', 'Classic or pick an IPL auction year · 25 core stars @ 2 Cr (Classic) · top sold @ 2 Cr (year)', AUCTION_MODE === 'all_stars') +
         cardBtn("choosePool('standard')", 'shuffle', 'Shuffled IPL pool', 'Uncapped ≥ teams × 5 · Indians ≥ teams × 12 · rest capped', AUCTION_MODE === 'standard');
     if (AUCTION_MODE === 'all_stars') html += allStarsYearPicker();
@@ -154,8 +168,10 @@ function stepTeams() {
             'oninput="TEAM_NAMES[' + i + ']=this.value" ' +
             'class="w-full mt-0.5 px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--bg-page)] text-sm" /></div>';
     }
-    return '<h2 class="display-font text-2xl sm:text-3xl text-[var(--accent)] mb-1">TEAMS</h2>' +
-        '<p class="text-sm text-[var(--text-secondary)] mb-3">Pool ~' + (NUM_TEAMS * 30) + ' · uncapped ≥' + (NUM_TEAMS * 5) + ' · Indians ≥' + (NUM_TEAMS * 12) + ' · rest capped.</p>' +
+    return '<div class="text-center mb-4">' +
+        '<h2 class="display-font text-2xl sm:text-3xl text-[var(--accent)] mb-1">TEAMS</h2>' +
+        '<p class="text-sm text-[var(--text-secondary)]">Pool ~' + (NUM_TEAMS * 30) + ' · uncapped ≥' + (NUM_TEAMS * 5) + ' · Indians ≥' + (NUM_TEAMS * 12) + ' · rest capped.</p>' +
+        '</div>' +
         '<div class="flex flex-wrap gap-2 mb-4">' + btns + '</div>' + names + navRow(true, true);
 }
 
@@ -168,7 +184,9 @@ function stepReady() {
         const o = ((ALL_STARS_OPTS && ALL_STARS_OPTS.options) || []).find(function(x) { return x.key === AUCTION_YEAR; });
         return o ? o.label : (AUCTION_YEAR === 'classic' ? 'Classic' : String(AUCTION_YEAR));
     })();
-    let html = '<h2 class="display-font text-2xl sm:text-3xl text-[var(--accent)] mb-1">READY</h2>' +
+    let html = '<div class="text-center mb-4">' +
+        '<h2 class="display-font text-2xl sm:text-3xl text-[var(--accent)] mb-1">READY</h2>' +
+        '</div>' +
         '<div class="rounded-xl bg-[var(--bg-elevated)] p-4 text-sm space-y-2 mb-4">' +
         '<div><strong>Mode:</strong> ' + (solo ? 'Single player' : 'Multiplayer (local)') + '</div>' +
         '<div><strong>Pool:</strong> ' + (AUCTION_MODE === 'all_stars' ? ('All Stars · ' + escapeHtml(yearLabel)) : 'Shuffled IPL') + '</div>' +
@@ -249,7 +267,7 @@ function reshufflePool() {
 }
 
 function stepJoin() {
-    return '<h2 class="display-font text-2xl sm:text-3xl text-[var(--accent)] mb-1">JOIN ROOM</h2>' +
+    return '<div class="text-center mb-4"><h2 class="display-font text-2xl sm:text-3xl text-[var(--accent)] mb-1">JOIN ROOM</h2></div>' +
         '<label class="text-xs text-[var(--text-muted)]">Your name</label>' +
         '<input id="join-name" type="text" value="' + escapeAttr(PLAYER_NAME) + '" placeholder="Your name" class="w-full mt-0.5 mb-3 px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--bg-page)] text-sm" />' +
         '<label class="text-xs text-[var(--text-muted)]">Room code</label>' +
@@ -259,15 +277,17 @@ function stepJoin() {
 }
 
 function stepLobby() {
-    return '<h2 class="display-font text-2xl sm:text-3xl text-[var(--accent)] mb-1">LOBBY</h2>' +
+    return '<div class="text-center mb-4">' +
+        '<h2 class="display-font text-2xl sm:text-3xl text-[var(--accent)] mb-1">LOBBY</h2>' +
         '<p class="text-sm mb-2">Room <strong class="tracking-widest text-auction-gold">' + escapeHtml(ROOM_CODE) + '</strong></p>' +
         '<p class="text-xs text-[var(--text-muted)] mb-4" id="lobby-status">Waiting for host to start…</p>' +
+        '</div>' +
         '<div id="lobby-claims" class="space-y-2 mb-4"></div>' +
         navRow(true, false);
 }
 
 function stepRoomHost() {
-    return '<h2 class="display-font text-2xl sm:text-3xl text-[var(--accent)] mb-1">YOUR ROOM</h2>' +
+    return '<div class="text-center mb-4"><h2 class="display-font text-2xl sm:text-3xl text-[var(--accent)] mb-1">YOUR ROOM</h2></div>' +
         '<label class="text-xs text-[var(--text-muted)]">Host display name</label>' +
         '<input id="host-name" type="text" value="' + escapeAttr(PLAYER_NAME || 'Host') + '" class="w-full mt-0.5 mb-4 px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--bg-page)] text-sm" />' +
         '<p class="text-xs text-[var(--text-secondary)] mb-3">Create a code, share it, then start. Friends use <strong>Join a room</strong> on their devices.</p>' +

@@ -56,6 +56,91 @@ def _normalize_mode(mode: Optional[str]) -> str:
     return 'all_stars' if m in ('all_stars', 'all-stars', 'allstars') else 'standard'
 
 
+def _normalize_auction_year(auction_year: Optional[Any]) -> str:
+    """All Stars year key: 'classic' or a year string like '2018'."""
+    if auction_year is None or auction_year == '':
+        return str(current_app.config.get('ALL_STARS_DEFAULT_YEAR', 'classic'))
+    key = str(auction_year).strip().lower()
+    if key in ('classic', 'all_time', 'all-time', 'modern', 'default'):
+        return 'classic'
+    try:
+        return str(int(key))
+    except (TypeError, ValueError):
+        return str(current_app.config.get('ALL_STARS_DEFAULT_YEAR', 'classic'))
+
+
+def _load_all_stars_bundle() -> Dict[str, Any]:
+    path = current_app.config.get('ALL_STARS_AUCTIONS_FILE') or ''
+    if path and os.path.exists(path):
+        with open(path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    # Fallback: wrap legacy all_stars.json as classic only
+    with open(current_app.config['ALL_STARS_FILE'], 'r', encoding='utf-8') as f:
+        classic = json.load(f)
+    return {
+        'meta': {
+            'years_available': [],
+            'classic_key': 'classic',
+            'pricing_rule': 'Top 25 players: 2 Cr. Others: 1 Cr.',
+        },
+        'classic': classic,
+        'by_year': {},
+    }
+
+
+def list_all_stars_auctions() -> Dict[str, Any]:
+    """Years / classic options for All Stars setup UI."""
+    bundle = _load_all_stars_bundle()
+    meta = bundle.get('meta') or {}
+    years = meta.get('years_available') or sorted(int(y) for y in (bundle.get('by_year') or {}))
+    classic = bundle.get('classic') or []
+    by_year = bundle.get('by_year') or {}
+    options = [{
+        'key': 'classic',
+        'label': 'Classic All Stars',
+        'player_count': len(classic),
+        'subtitle': 'Curated modern list · top 25 @ 2 Cr',
+    }]
+    for y in sorted(int(x) for x in years):
+        roster = by_year.get(str(y)) or []
+        options.append({
+            'key': str(y),
+            'label': f'IPL Auction {y}',
+            'player_count': len(roster),
+            'subtitle': f'{len(roster)} sold players · top 25 @ 2 Cr',
+        })
+    return {
+        'default': str(meta.get('classic_key') or current_app.config.get('ALL_STARS_DEFAULT_YEAR', 'classic')),
+        'years_available': list(years),
+        'pricing_rule': meta.get('pricing_rule') or 'Top 25: 2 Cr; others: 1 Cr',
+        'note': meta.get('note') or '',
+        'options': options,
+    }
+
+
+def _apply_all_stars_labels(players: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    top_base = float(current_app.config.get('ALL_STARS_TOP_BASE', 2.0))
+    rest_base = float(current_app.config.get('ALL_STARS_REST_BASE', 1.0))
+    for p in players:
+        tier = p.get('tier') or ('marquee' if float(p.get('base_price') or 0) >= top_base else 'capped')
+        # Honour stored base_price from auctions file; fall back by tier
+        if p.get('base_price') is None:
+            p['base_price'] = top_base if tier == 'marquee' else rest_base
+        else:
+            p['base_price'] = float(p['base_price'])
+        if p['base_price'] >= top_base:
+            tier = 'marquee'
+        else:
+            tier = 'capped'
+            p['base_price'] = rest_base
+        p['tier'] = tier
+        p['tier_label'] = TIER_LABELS.get(tier, tier)
+        p['role_label'] = ROLE_LABELS.get(p['role'], p['role'])
+        p['all_star'] = True
+        p['backup_wk'] = False
+    return players
+
+
 def _tier_base_price(tier: str) -> float:
     cfg = current_app.config
     mapping = {
@@ -66,23 +151,66 @@ def _tier_base_price(tier: str) -> float:
     return mapping.get(tier, float(cfg['BASE_PRICE_CAPPED']))
 
 
-def load_master_players(mode: str = 'standard') -> List[Dict[str, Any]]:
+def load_master_players(
+    mode: str = 'standard',
+    auction_year: Optional[Any] = None,
+) -> List[Dict[str, Any]]:
     mode = _normalize_mode(mode)
+    if mode == 'all_stars':
+        year_key = _normalize_auction_year(auction_year)
+        bundle = _load_all_stars_bundle()
+        if year_key == 'classic':
+            players = deepcopy(bundle.get('classic') or [])
+        else:
+            players = deepcopy((bundle.get('by_year') or {}).get(year_key) or [])
+            if not players:
+                raise ValueError(
+                    f'No All Stars roster for auction year {year_key}. '
+                    f'Available: classic, {", ".join(sorted((bundle.get("by_year") or {}).keys()))}.'
+                )
+        # If legacy classic entries lack pricing, use ALL_STARS_CORE (cross-role),
+        # not list order (classic file is batter-first and would make only batters 2 Cr).
+        if players and all(p.get('base_price') is None for p in players):
+            top_base = float(current_app.config.get('ALL_STARS_TOP_BASE', 2.0))
+            rest_base = float(current_app.config.get('ALL_STARS_REST_BASE', 1.0))
+            if year_key == 'classic':
+                core = {n.lower() for n in ALL_STARS_CORE}
+                for p in players:
+                    if (p.get('name') or '').strip().lower() in core:
+                        p['tier'] = 'marquee'
+                        p['base_price'] = top_base
+                    else:
+                        p['tier'] = 'capped'
+                        p['base_price'] = rest_base
+            else:
+                top_n = int(current_app.config.get('ALL_STARS_TOP_COUNT', 25))
+                ranked = sorted(
+                    players,
+                    key=lambda x: (
+                        -(float(x.get('historical_sold_cr') or 0)),
+                        int(x.get('source_list_no') or x.get('id') or 0),
+                    ),
+                )
+                top_ids = {p['id'] for p in ranked[:top_n]}
+                for p in players:
+                    if p['id'] in top_ids:
+                        p['tier'] = 'marquee'
+                        p['base_price'] = top_base
+                    else:
+                        p['tier'] = 'capped'
+                        p['base_price'] = rest_base
+        return _apply_all_stars_labels(players)
+
     with open(_players_path(mode), 'r', encoding='utf-8') as f:
         players = json.load(f)
     for p in players:
-        tier = p.get('tier') or ('marquee' if mode == 'all_stars' else 'capped')
-        if mode == 'all_stars':
-            tier = 'marquee'
+        tier = p.get('tier') or 'capped'
         p['tier'] = tier
         p['tier_label'] = TIER_LABELS.get(tier, tier)
         p['role_label'] = ROLE_LABELS.get(p['role'], p['role'])
         p['base_price'] = float(
             p.get('base_price') or _tier_base_price(tier)
         )
-        if mode == 'all_stars':
-            p['base_price'] = float(current_app.config['BASE_PRICE_MARQUEE'])
-            p['all_star'] = True
         p['backup_wk'] = False
     return players
 
@@ -102,6 +230,7 @@ def _empty_state() -> Dict[str, Any]:
         'round': 1,
         'pool_seed': None,
         'auction_mode': 'standard',
+        'auction_year': None,
         'solo_mode': False,
         'human_team_id': None,
         'human_raises_on_current': 0,
@@ -133,6 +262,7 @@ def get_state() -> Dict[str, Any]:
                 _state.setdefault('round', 1)
                 _state.setdefault('pool_seed', None)
                 _state.setdefault('auction_mode', 'standard')
+                _state.setdefault('auction_year', None)
                 _state.setdefault('solo_mode', False)
                 _state.setdefault('human_team_id', None)
                 _state.setdefault('human_raises_on_current', 0)
@@ -172,14 +302,300 @@ def _bucket_key(p: Dict[str, Any]) -> Tuple[str, str]:
     return (p.get('tier') or 'capped', p['role'])
 
 
+
+def _is_overseas(player: Dict[str, Any]) -> bool:
+    """True when country is set and not India (missing country = not overseas)."""
+    country = (player.get('country') or '').strip()
+    return bool(country) and country.lower() != 'india'
+
+
+def _overseas_quota(num_teams: int) -> int:
+    return int(num_teams) * int(current_app.config.get('OVERSEAS_PER_TEAM', 8))
+
+
+def _enforce_overseas_quota(
+    selected: List[Dict[str, Any]],
+    master: List[Dict[str, Any]],
+    overseas_target: int,
+    must_ids: set,
+    pool_size: int,
+    rng: random.Random,
+) -> List[Dict[str, Any]]:
+    """Aim for exactly overseas_target overseas players (capped by availability)."""
+    overseas_master = [p for p in master if _is_overseas(p)]
+    domestic_master = [p for p in master if not _is_overseas(p)]
+    want = max(0, min(int(overseas_target), pool_size, len(overseas_master)))
+
+    def _drop_rank(p: Dict[str, Any]):
+        # Drop non-must / non-marquee first
+        tier = p.get('tier') or 'capped'
+        return (
+            0 if p['id'] not in must_ids else 1,
+            0 if tier != 'marquee' else 1,
+            rng.random(),
+        )
+
+    cur_os = [p for p in selected if _is_overseas(p)]
+    cur_dom = [p for p in selected if not _is_overseas(p)]
+    selected_ids = {p['id'] for p in selected}
+
+    if len(cur_os) > want:
+        cur_os.sort(key=lambda p: (
+            0 if p['id'] in must_ids else 1,
+            0 if (p.get('tier') or '') == 'marquee' else 1,
+            0 if (p.get('tier') or '') == 'capped' else 1,
+            rng.random(),
+        ))
+        keep_os = cur_os[:want]
+        selected = keep_os + cur_dom
+        selected_ids = {p['id'] for p in selected}
+        need = pool_size - len(selected)
+        if need > 0:
+            # Only domestic top-up — never reintroduce overseas above want
+            leftovers = [deepcopy(p) for p in domestic_master if p['id'] not in selected_ids]
+            rng.shuffle(leftovers)
+            selected.extend(leftovers[:need])
+    elif len(cur_os) < want:
+        need_os = want - len(cur_os)
+        add_os = [deepcopy(p) for p in overseas_master if p['id'] not in selected_ids]
+        rng.shuffle(add_os)
+        droppable = [p for p in cur_dom if p['id'] not in must_ids]
+        droppable.sort(key=_drop_rank)
+        take = min(need_os, len(add_os), len(droppable))
+        add_os = add_os[:take]
+        keep_dom = droppable[take:] + [p for p in cur_dom if p['id'] in must_ids]
+        selected = cur_os + add_os + keep_dom
+
+    selected_ids = {p['id'] for p in selected}
+    if len(selected) > pool_size:
+        must = [p for p in selected if p['id'] in must_ids]
+        rest = [p for p in selected if p['id'] not in must_ids]
+        rest.sort(key=lambda p: (
+            0 if not _is_overseas(p) else 1,
+            0 if (p.get('tier') or '') != 'marquee' else 1,
+            rng.random(),
+        ))
+        selected = must + rest[: max(0, pool_size - len(must))]
+    elif len(selected) < pool_size:
+        cur_os_n = sum(1 for p in selected if _is_overseas(p))
+        leftovers = [deepcopy(p) for p in master if p['id'] not in selected_ids]
+        if cur_os_n >= want:
+            leftovers = [p for p in leftovers if not _is_overseas(p)]
+        else:
+            # Prefer overseas until want, then domestic
+            os_left = [p for p in leftovers if _is_overseas(p)]
+            dom_left = [p for p in leftovers if not _is_overseas(p)]
+            rng.shuffle(os_left)
+            rng.shuffle(dom_left)
+            leftovers = os_left[: max(0, want - cur_os_n)] + dom_left + os_left[max(0, want - cur_os_n):]
+        selected.extend(leftovers[: pool_size - len(selected)])
+
+    return selected[:pool_size]
+
+
+
+
+def _role_balanced_take(
+    candidates: List[Dict[str, Any]],
+    n: int,
+    rng: random.Random,
+) -> List[Dict[str, Any]]:
+    """Take n players from candidates, balancing across roles."""
+    if n <= 0 or not candidates:
+        return []
+    n = min(n, len(candidates))
+    by_role: Dict[str, List[Dict[str, Any]]] = {r: [] for r in ROLE_ORDER}
+    other: List[Dict[str, Any]] = []
+    for p in candidates:
+        role = p.get('role')
+        if role in by_role:
+            by_role[role].append(deepcopy(p))
+        else:
+            other.append(deepcopy(p))
+    for r in ROLE_ORDER:
+        rng.shuffle(by_role[r])
+    rng.shuffle(other)
+
+    total = len(candidates)
+    targets = {r: int(round(n * len(by_role[r]) / total)) for r in ROLE_ORDER}
+    # Clamp to availability
+    for r in ROLE_ORDER:
+        targets[r] = min(targets[r], len(by_role[r]))
+    while sum(targets.values()) > n:
+        r = max(ROLE_ORDER, key=lambda x: targets[x])
+        if targets[r] > 0:
+            targets[r] -= 1
+        else:
+            break
+    while sum(targets.values()) < n:
+        grew = False
+        for r in sorted(ROLE_ORDER, key=lambda x: len(by_role[x]) - targets[x], reverse=True):
+            if targets[r] < len(by_role[r]):
+                targets[r] += 1
+                grew = True
+                break
+        if not grew:
+            break
+
+    selected: List[Dict[str, Any]] = []
+    for r in ROLE_ORDER:
+        selected.extend(by_role[r][: targets[r]])
+    if len(selected) < n:
+        used = {p['id'] for p in selected}
+        leftover = [p for p in candidates if p['id'] not in used]
+        rng.shuffle(leftover)
+        selected.extend(deepcopy(p) for p in leftover[: n - len(selected)])
+    return selected[:n]
+
+
+def select_shuffled_pool(
+    master: List[Dict[str, Any]],
+    pool_size: int,
+    seed: Optional[int] = None,
+    uncapped_target: int = 0,
+    min_indian_target: int = 0,
+) -> List[Dict[str, Any]]:
+    """Shuffled pool: all marquees; ≥ teams×5 uncapped (more if needed); rest capped;
+    ≥ teams×12 Indians; role-balanced. No overseas pool quota.
+    """
+    if pool_size > len(master):
+        raise ValueError(
+            f'Need {pool_size} players but master roster only has {len(master)}. '
+            f'Reduce number of teams.'
+        )
+    rng = random.Random(seed)
+
+    marquees = [deepcopy(p) for p in master if (p.get('tier') or '') == 'marquee']
+    if len(marquees) > pool_size:
+        marquees = _role_balanced_take(marquees, pool_size, rng)
+
+    slots = pool_size - len(marquees)
+    base_u = max(0, min(int(uncapped_target), slots))
+    min_indian = max(0, int(min_indian_target))
+    indian_marquees = sum(1 for p in marquees if not _is_overseas(p))
+    need_indian = max(0, min_indian - indian_marquees)
+
+    uncapped = [p for p in master if (p.get('tier') or '') == 'uncapped']
+    capped = [p for p in master if (p.get('tier') or '') == 'capped']
+    u_ind = [p for p in uncapped if not _is_overseas(p)]
+    u_os = [p for p in uncapped if _is_overseas(p)]
+    c_ind = [p for p in capped if not _is_overseas(p)]
+    c_os = [p for p in capped if _is_overseas(p)]
+
+    # Prefer capped Indians toward the Indian floor, then Indian uncapped (may raise uncapped above base_u).
+    take_c_ind = min(len(c_ind), slots, need_indian)
+    still_indian = max(0, need_indian - take_c_ind)
+    take_u_ind = min(still_indian, len(u_ind))
+
+    uncapped_total = max(base_u, take_u_ind)
+    # Fill remaining uncapped slots: more Indian uncapped first, then overseas uncapped
+    u_extra = uncapped_total - take_u_ind
+    add_u_ind = min(u_extra, len(u_ind) - take_u_ind)
+    take_u_ind += add_u_ind
+    take_u_os = min(uncapped_total - take_u_ind, len(u_os))
+    if take_u_ind + take_u_os < uncapped_total:
+        take_u_ind = min(uncapped_total - take_u_os, len(u_ind))
+
+    uncapped_total = take_u_ind + take_u_os
+    capped_total = slots - uncapped_total
+
+    # Fit capped Indians into capped_total; fill rest with overseas capped
+    take_c_ind = min(take_c_ind, capped_total, len(c_ind))
+    take_c_os = min(capped_total - take_c_ind, len(c_os))
+    if take_c_ind + take_c_os < capped_total:
+        take_c_ind = min(capped_total - take_c_os, len(c_ind))
+
+    # If Indian floor still short, convert overseas capped slots → Indian uncapped
+    have_indian = take_c_ind + take_u_ind
+    if have_indian < need_indian:
+        short = need_indian - have_indian
+        # Free capped_os slots and replace with u_ind
+        convertible = min(short, take_c_os, len(u_ind) - take_u_ind)
+        take_c_os -= convertible
+        take_u_ind += convertible
+        # Recompute totals
+        uncapped_total = take_u_ind + take_u_os
+        capped_total = take_c_ind + take_c_os
+
+    picked: List[Dict[str, Any]] = []
+    picked.extend(_role_balanced_take(u_ind, take_u_ind, rng))
+    picked.extend(_role_balanced_take(u_os, take_u_os, rng))
+    picked.extend(_role_balanced_take(c_ind, take_c_ind, rng))
+    picked.extend(_role_balanced_take(c_os, take_c_os, rng))
+
+    selected = marquees + picked
+
+    if len(selected) < pool_size:
+        selected_ids = {p['id'] for p in selected}
+        cur_u = sum(1 for p in selected if (p.get('tier') or '') == 'uncapped')
+        cur_ind = sum(1 for p in selected if not _is_overseas(p))
+        fillers = []
+        for p in master:
+            if p['id'] in selected_ids:
+                continue
+            tier = p.get('tier') or 'capped'
+            if tier == 'marquee':
+                continue
+            # Prefer capped; allow uncapped only if already above base or need Indians
+            if tier == 'uncapped' and cur_u >= max(base_u, take_u_ind) and cur_ind >= min_indian:
+                continue
+            fillers.append(p)
+        fillers.sort(key=lambda p: (
+            0 if (p.get('tier') or '') == 'capped' else 1,
+            0 if (not _is_overseas(p) and cur_ind < min_indian) else 1,
+            0 if not _is_overseas(p) else 1,
+            rng.random(),
+        ))
+        need = pool_size - len(selected)
+        selected.extend(_role_balanced_take(fillers, need, rng))
+
+    if len(selected) > pool_size:
+        must = [p for p in selected if (p.get('tier') or '') == 'marquee']
+        rest = [p for p in selected if (p.get('tier') or '') != 'marquee']
+        cur_u = sum(1 for p in selected if (p.get('tier') or '') == 'uncapped')
+        cur_ind = sum(1 for p in selected if not _is_overseas(p))
+        # Prefer dropping overseas capped first; protect Indians if under floor; protect base uncapped
+        rest.sort(key=lambda p: (
+            0 if _is_overseas(p) else 1,
+            0 if (p.get('tier') or '') == 'capped' else 1,
+            1 if (not _is_overseas(p) and cur_ind <= min_indian) else 0,
+            1 if ((p.get('tier') or '') == 'uncapped' and cur_u <= base_u) else 0,
+            rng.random(),
+        ))
+        selected = must + rest[: max(0, pool_size - len(must))]
+
+    return selected
+
+
+
+def _team_overseas_count(team: Dict[str, Any]) -> int:
+    return sum(1 for p in (team.get('players') or []) if _is_overseas(p))
+
+
+def _overseas_cap() -> int:
+    return int(current_app.config.get('OVERSEAS_PER_TEAM', 8))
+
+
+def _team_overseas_left(team: Dict[str, Any]) -> int:
+    return max(0, _overseas_cap() - _team_overseas_count(team))
+
+
+def _assert_can_buy_overseas(team: Dict[str, Any], player: Dict[str, Any]) -> None:
+    if _is_overseas(player) and _team_overseas_left(team) <= 0:
+        raise ValueError(
+            f'{team["name"]} already has the maximum of {_overseas_cap()} overseas players.'
+        )
+
+
 def select_balanced_pool(
     master: List[Dict[str, Any]],
     pool_size: int,
     seed: Optional[int] = None,
     ensure_names: Optional[List[str]] = None,
     uncapped_target: Optional[int] = None,
+    overseas_target: Optional[int] = None,
 ) -> List[Dict[str, Any]]:
-    """Pick pool_size players balanced across tier x role; force uncapped_target when set."""
+    """Pick pool_size players balanced across tier x role; force uncapped/overseas targets when set."""
     if pool_size > len(master):
         raise ValueError(
             f'Need {pool_size} players but master roster only has {len(master)}. '
@@ -392,6 +808,11 @@ def select_balanced_pool(
         need = pool_size - len(must)
         selected = must + rest[:max(0, need)]
 
+    if overseas_target is not None:
+        selected = _enforce_overseas_quota(
+            selected, master, int(overseas_target), must_ids, pool_size, rng,
+        )
+
     return selected
 
 
@@ -467,33 +888,61 @@ def preview_pool(
     num_teams: int = 0,
     seed: Optional[int] = None,
     mode: str = 'standard',
+    auction_year: Optional[Any] = None,
 ) -> Dict[str, Any]:
     """Build a balanced auction pool preview for the chosen team count."""
     mode = _normalize_mode(mode)
+    year_key = _normalize_auction_year(auction_year) if mode == 'all_stars' else None
     min_t = current_app.config['MIN_TEAMS']
     max_t = current_app.config['MAX_TEAMS']
     per = int(current_app.config['PLAYERS_PER_TEAM_POOL'])
-    master = load_master_players(mode)
+    master = load_master_players(mode, auction_year=year_key)
 
     if num_teams < min_t or num_teams > max_t:
         num_teams = max(min_t, min(num_teams or min_t, max_t))
 
     desired = num_teams * per
     pool_size = min(desired, len(master))
+    oq = _overseas_quota(num_teams)  # bid-cap info only for shuffled
+    uq = _uncapped_quota(num_teams, mode)
+    min_indian = int(num_teams) * int(current_app.config.get('MIN_INDIAN_PER_TEAM', 12))
     if seed is None:
         seed = random.randint(1, 2_000_000_000)
-    ensure = ALL_STARS_CORE if mode == 'all_stars' else None
-    uq = _uncapped_quota(num_teams, mode)
-    selected = select_balanced_pool(
-        master, pool_size, seed=seed, ensure_names=ensure, uncapped_target=uq,
-    )
+    if mode == 'all_stars':
+        # Prefer historically expensive / curated top names into the pool
+        top_names = [
+            p['name'] for p in sorted(
+                master,
+                key=lambda x: (
+                    0 if (x.get('tier') or '') == 'marquee' else 1,
+                    -(float(x.get('historical_sold_cr') or x.get('base_price') or 0)),
+                    int(x.get('source_list_no') or x.get('id') or 0),
+                ),
+            )[:25]
+        ]
+        ensure = top_names if year_key != 'classic' else ALL_STARS_CORE
+    else:
+        ensure = None
+    if mode == 'standard':
+        selected = select_shuffled_pool(
+            master, pool_size, seed=seed,
+            uncapped_target=int(uq or 0),
+            min_indian_target=min_indian,
+        )
+    else:
+        # All Stars: role-balanced + top names; no uncapped pool quotas
+        selected = select_balanced_pool(
+            master, pool_size, seed=seed, ensure_names=ensure,
+            uncapped_target=None, overseas_target=None,
+        )
     ordered = order_round1_pool(selected)
     counts = _tier_role_counts(ordered)
 
     if mode == 'all_stars':
+        year_label = 'Classic' if year_key == 'classic' else str(year_key)
         order_txt = (
-            'All Stars: all players at Marquee base (2 Cr). '
-            'Order: Batter → WK → All-Rounder → Bowler. '
+            f'All Stars ({year_label}): top 25 @ 2 Cr (Marquee), others @ 1 Cr (Capped). '
+            'Order: Marquee → Capped; within each Batter → WK → All-Rounder → Bowler. '
             'Round 2 (if needed): unsold only, random order.'
         )
     else:
@@ -506,10 +955,19 @@ def preview_pool(
     return {
         'num_teams': num_teams,
         'auction_mode': mode,
+        'auction_year': year_key,
         'pool_size': len(ordered),
         'desired_pool_size': desired,
         'pool_capped_to_roster': pool_size < desired,
         'players_per_team_pool': per,
+        'overseas_in_pool': sum(1 for p in ordered if _is_overseas(p)),
+        'overseas_per_team': int(current_app.config.get('OVERSEAS_PER_TEAM', 8)),
+        'indian_in_pool': sum(1 for p in ordered if not _is_overseas(p)),
+        'indian_target': min_indian if mode == 'standard' else None,
+        'min_indian_per_team': int(current_app.config.get('MIN_INDIAN_PER_TEAM', 12)),
+        'uncapped_in_pool': sum(1 for p in ordered if (p.get('tier') or '') == 'uncapped'),
+        'uncapped_target_base': uq,
+        'uncapped_per_team': int(current_app.config.get('UNCAPPED_PER_TEAM', 5)),
         'pool_seed': seed,
         'squad_size': current_app.config['MAX_SQUAD_SIZE'],
         'min_squad_size': current_app.config['MIN_SQUAD_SIZE'],
@@ -521,8 +979,10 @@ def preview_pool(
         'tier_labels': TIER_LABELS,
         'auction_order': order_txt,
         'base_prices': {
-            'marquee': float(current_app.config['BASE_PRICE_MARQUEE']),
-            'capped': float(current_app.config['BASE_PRICE_CAPPED']),
+            'marquee': float(current_app.config.get('ALL_STARS_TOP_BASE', current_app.config['BASE_PRICE_MARQUEE']))
+            if mode == 'all_stars' else float(current_app.config['BASE_PRICE_MARQUEE']),
+            'capped': float(current_app.config.get('ALL_STARS_REST_BASE', current_app.config['BASE_PRICE_CAPPED']))
+            if mode == 'all_stars' else float(current_app.config['BASE_PRICE_CAPPED']),
             'uncapped': float(current_app.config['BASE_PRICE_UNCAPPED']),
         },
         'master_total': len(master),
@@ -536,8 +996,10 @@ def start_auction(
     mode: str = 'standard',
     solo_mode: bool = False,
     human_team_id: Optional[int] = None,
+    auction_year: Optional[Any] = None,
 ) -> Dict[str, Any]:
     mode = _normalize_mode(mode)
+    year_key = _normalize_auction_year(auction_year) if mode == 'all_stars' else None
     min_t = current_app.config['MIN_TEAMS']
     max_t = current_app.config['MAX_TEAMS']
     per = int(current_app.config['PLAYERS_PER_TEAM_POOL'])
@@ -551,17 +1013,39 @@ def start_auction(
     else:
         human_team_id = None
 
-    master = load_master_players(mode)
+    master = load_master_players(mode, auction_year=year_key)
     desired = num_teams * per
     pool_size = min(desired, len(master))
+    uq = _uncapped_quota(num_teams, mode)
+    min_indian = int(num_teams) * int(current_app.config.get('MIN_INDIAN_PER_TEAM', 12))
     if seed is None:
         seed = random.randint(1, 2_000_000_000)
 
-    ensure = ALL_STARS_CORE if mode == 'all_stars' else None
-    uq = _uncapped_quota(num_teams, mode)
-    selected = select_balanced_pool(
-        master, pool_size, seed=seed, ensure_names=ensure, uncapped_target=uq,
-    )
+    if mode == 'all_stars':
+        top_names = [
+            p['name'] for p in sorted(
+                master,
+                key=lambda x: (
+                    0 if (x.get('tier') or '') == 'marquee' else 1,
+                    -(float(x.get('historical_sold_cr') or x.get('base_price') or 0)),
+                    int(x.get('source_list_no') or x.get('id') or 0),
+                ),
+            )[:25]
+        ]
+        ensure = top_names if year_key != 'classic' else ALL_STARS_CORE
+    else:
+        ensure = None
+    if mode == 'standard':
+        selected = select_shuffled_pool(
+            master, pool_size, seed=seed,
+            uncapped_target=int(uq or 0),
+            min_indian_target=min_indian,
+        )
+    else:
+        selected = select_balanced_pool(
+            master, pool_size, seed=seed, ensure_names=ensure,
+            uncapped_target=None, overseas_target=None,
+        )
     pool = order_round1_pool(selected)
     for p in pool:
         p['sold_to'] = None
@@ -598,10 +1082,14 @@ def start_auction(
         'round': 1,
         'pool_seed': seed,
         'auction_mode': mode,
+        'auction_year': year_key,
         'solo_mode': bool(solo_mode),
         'human_team_id': human_team_id,
         'human_raises_on_current': 0,
     }
+    if solo_mode:
+        from services.cpu_bots import attach_cpu_profiles
+        attach_cpu_profiles(state)
     with _lock:
         _save(state)
         return deepcopy(state)
@@ -708,6 +1196,8 @@ def place_bid(
                 f'{current_app.config["MAX_SQUAD_SIZE"]}.'
             )
 
+        _assert_can_buy_overseas(team, player)
+
         base = _player_base(player)
         step = float(current_app.config['BID_INCREMENT'])
         reserve_unit = float(current_app.config['RESERVE_BASE_PRICE'])
@@ -791,6 +1281,7 @@ def sell_current() -> Dict[str, Any]:
         price = round(float(bid['amount']), 2)
         if _slots_left(team) <= 0:
             raise ValueError(f'{team["name"]} has a full squad.')
+        _assert_can_buy_overseas(team, player)
         if price > _remaining_budget(team) + 1e-9:
             raise ValueError(f'{team["name"]} cannot afford {price} Cr.')
 
@@ -1040,6 +1531,9 @@ def _public_state(state: Dict[str, Any]) -> Dict[str, Any]:
         needed_after = max(0, min_squad - (len(t['players']) + 1)) if slots > 0 else 0
         reserve = round(needed_after * reserve_unit, 2)
         max_bid = round(max(0.0, remaining - reserve), 2) if slots > 0 else 0.0
+        os_count = _team_overseas_count(t)
+        os_left = max(0, _overseas_cap() - os_count)
+        blocked_os = bool(player and _is_overseas(player) and os_left <= 0)
         teams_out.append({
             **t,
             'is_cpu': bool(t.get('is_cpu')),
@@ -1047,8 +1541,15 @@ def _public_state(state: Dict[str, Any]) -> Dict[str, Any]:
             'slots_left': slots,
             'players_count': len(t['players']),
             'needed_for_min': max(0, min_squad - len(t['players'])),
+            'overseas_count': os_count,
+            'overseas_left': os_left,
             'max_bid': max_bid,
-            'can_bid': slots > 0 and max_bid + 1e-9 >= player_base,
+            'can_bid': (
+                slots > 0
+                and max_bid + 1e-9 >= player_base
+                and not blocked_os
+            ),
+            'overseas_blocked': blocked_os,
         })
 
     bid = state.get('current_bid') or {}
@@ -1090,6 +1591,7 @@ def _public_state(state: Dict[str, Any]) -> Dict[str, Any]:
         'tier_order': TIER_ORDER,
         'pool_seed': state.get('pool_seed'),
         'auction_mode': state.get('auction_mode', 'standard'),
+        'auction_year': state.get('auction_year'),
         'solo_mode': bool(state.get('solo_mode')),
         'human_team_id': state.get('human_team_id'),
         'human_raises_on_current': int(state.get('human_raises_on_current') or 0),
@@ -1120,6 +1622,9 @@ def run_cpu_bid_round(max_bids: int = 1) -> Dict[str, Any]:
             raise ValueError('Auction is not in progress.')
         if not state.get('solo_mode'):
             raise ValueError('CPU bidding is only available in Solo (You vs CPU) mode.')
+
+        from services.cpu_bots import attach_cpu_profiles
+        attach_cpu_profiles(state)
 
         actions: List[Dict[str, Any]] = []
         step = float(current_app.config['BID_INCREMENT'])

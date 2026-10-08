@@ -32,6 +32,11 @@ def players():
     return jsonify({'ok': True, **auction_svc.master_players_summary()})
 
 
+@bp.route('/all-stars-auctions')
+def all_stars_auctions():
+    return jsonify({'ok': True, **auction_svc.list_all_stars_auctions()})
+
+
 @bp.route('/preview-pool')
 def preview_pool():
     try:
@@ -39,7 +44,13 @@ def preview_pool():
         seed = request.args.get('seed')
         seed_i = int(seed) if seed not in (None, '') else None
         mode = request.args.get('mode') or 'standard'
-        return jsonify({'ok': True, **auction_svc.preview_pool(num_teams, seed=seed_i, mode=mode)})
+        auction_year = request.args.get('auction_year')
+        return jsonify({
+            'ok': True,
+            **auction_svc.preview_pool(
+                num_teams, seed=seed_i, mode=mode, auction_year=auction_year,
+            ),
+        })
     except (TypeError, ValueError) as e:
         return _error(str(e))
 
@@ -112,6 +123,7 @@ def rooms_start():
             team_names=payload.get('team_names') or [],
             seed=seed_i,
             mode=payload.get('mode') or 'standard',
+            auction_year=payload.get('auction_year'),
         )
         return jsonify({'ok': True, 'state': pub})
     except (TypeError, ValueError) as e:
@@ -140,6 +152,7 @@ def start():
             mode=mode,
             solo_mode=solo_mode,
             human_team_id=human_team_id,
+            auction_year=payload.get('auction_year'),
         )
         return jsonify({'ok': True, 'state': auction_svc.get_public_state()})
     except (TypeError, ValueError) as e:

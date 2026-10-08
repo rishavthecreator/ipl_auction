@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 function render(s) {
     const root = document.getElementById('results-root');
     let html = '<div class="flex flex-wrap items-center justify-between gap-3 mb-6">';
-    html += '<div><div class="display-font text-4xl text-auction-gold">AUCTION COMPLETE</div>';
+    html += '<div><div class="display-font text-3xl sm:text-4xl text-auction-gold">AUCTION COMPLETE</div>';
     html += '<p class="text-sm text-[var(--text-secondary)] mt-1">Sold ' + s.sold_count +
         ' · Unsold ' + (s.unsold_count || 0) + ' · Pool ' + s.auction_pool_size + '</p></div>';
     html += '<button onclick="newAuction()" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-auction-navy text-white text-sm font-bold">' +

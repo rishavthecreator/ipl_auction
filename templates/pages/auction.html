@@ -14,6 +14,7 @@
 let STATE = null;
 let SELECTED_TEAM = null;
 let ROADMAP_OPEN = {};
+let SQUAD_OPEN = {};
 let ROOM_CODE = '';
 let CLIENT_ID = localStorage.getItem('ipl_client_id') || '';
 let POLL_TIMER = null;
@@ -135,8 +136,8 @@ function render() {
     html += '<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">';
 
     // ===== Category tracker / roadmap (left) =====
-    html += '<div class="xl:col-span-3 order-2 xl:order-1">';
-    html += '<div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4 sticky top-20 max-h-[80vh] overflow-y-auto">';
+    html += '<div class="xl:col-span-3 order-3 xl:order-1">';
+    html += '<div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4 xl:sticky xl:top-20 max-h-[50vh] xl:max-h-[80vh] overflow-y-auto">';
     html += '<div class="flex items-center justify-between mb-2">';
     html += '<h3 class="text-sm font-bold">Auction roadmap</h3>';
     html += '<span class="text-[0.65rem] text-[var(--text-muted)]">' + (s.remaining_count || 0) + ' left</span>';
@@ -205,37 +206,37 @@ function render() {
     // ===== Main floor =====
     // ===== Main floor =====
     html += '<div class="xl:col-span-6 order-1 xl:order-2 space-y-4">';
-    html += '<div class="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] p-6 auction-live">';
+    html += '<div class="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] p-4 sm:p-6 auction-live">';
     if (p) {
-        html += '<div class="flex items-start justify-between gap-4">';
-        html += '<div>';
-        html += '<div class="text-xs uppercase tracking-widest text-[var(--text-muted)] mb-1">Now auctioning · Round ' + (s.round || 1) + ' · #' + (s.current_index + 1) + ' of ' + s.auction_pool_size + '</div>';
-        html += '<div class="display-font text-5xl md:text-6xl leading-none mb-2">' + escapeHtml(p.name) + '</div>';
+        html += '<div class="flex items-start justify-between gap-3 sm:gap-4">';
+        html += '<div class="min-w-0 flex-1">';
+        html += '<div class="text-[0.65rem] sm:text-xs uppercase tracking-widest text-[var(--text-muted)] mb-1 break-words">Now auctioning · Round ' + (s.round || 1) + ' · #' + (s.current_index + 1) + ' of ' + s.auction_pool_size + '</div>';
+        html += '<div class="display-font text-3xl sm:text-5xl md:text-6xl leading-none mb-2 break-words">' + escapeHtml(p.name) + '</div>';
         const tierLab = (s.tier_labels && p.tier) ? (s.tier_labels[p.tier] || p.tier) : (p.tier || '');
         html += '<div class="flex flex-wrap gap-1.5">' +
             (tierLab ? '<span class="inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-900">' + tierLab + '</span>' : '') +
             '<span class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ' + roleClass(p.role) + '">' +
             roleLabel(p.role, s.role_labels) + '</span></div>';
         html += '</div>';
-        html += '<div class="text-right">';
+        html += '<div class="text-right shrink-0">';
         html += '<div class="text-xs text-[var(--text-muted)] uppercase">Base</div>';
-        html += '<div class="text-2xl font-bold">' + money(s.base_price) + '</div>';
+        html += '<div class="text-xl sm:text-2xl font-bold">' + money(s.base_price) + '</div>';
         html += '</div></div>';
 
-        html += '<div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">';
-        html += '<div class="rounded-xl bg-[var(--bg-elevated)] p-4">';
+        html += '<div class="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">';
+        html += '<div class="rounded-xl bg-[var(--bg-elevated)] p-3 sm:p-4">';
         html += '<div class="text-xs text-[var(--text-muted)] uppercase mb-1">Current bid</div>';
         if (bid.team_id) {
-            html += '<div class="text-3xl font-bold text-auction-gold">' + money(bid.amount) + '</div>';
+            html += '<div class="text-2xl sm:text-3xl font-bold text-auction-gold">' + money(bid.amount) + '</div>';
             html += '<div class="text-sm text-[var(--text-secondary)] mt-1">' + escapeHtml(bid.team_name) + '</div>';
         } else {
-            html += '<div class="text-3xl font-bold text-[var(--text-muted)]">—</div>';
+            html += '<div class="text-2xl sm:text-3xl font-bold text-[var(--text-muted)]">—</div>';
             html += '<div class="text-sm text-[var(--text-secondary)] mt-1">No bids yet</div>';
         }
         html += '</div>';
         html += '<div class="rounded-xl bg-[var(--bg-elevated)] p-4">';
         html += '<div class="text-xs text-[var(--text-muted)] uppercase mb-1">Next min bid</div>';
-        html += '<div class="text-3xl font-bold">' + money(s.next_min_bid) + '</div>';
+        html += '<div class="text-2xl sm:text-3xl font-bold">' + money(s.next_min_bid) + '</div>';
         html += '<div class="text-sm text-[var(--text-secondary)] mt-1">Step ' + money(s.bid_increment) + '</div>';
         html += '</div>';
         html += '<div class="rounded-xl p-4 flex flex-col justify-center gap-2 ' +
@@ -266,7 +267,7 @@ function render() {
     html += '</div>';
 
     // Bid controls
-    html += '<div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-5">';
+    html += '<div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4 sm:p-5">';
     if (s.solo_mode) {
         html += '<div class="mb-3 flex flex-wrap items-center justify-between gap-2">';
         html += '<h3 class="text-sm font-semibold">You vs CPU</h3>';
@@ -303,40 +304,32 @@ function render() {
         if (s.room_mode && !claim) html += '<button onclick="claimTeamAuction(' + t.id + ')" class="text-[0.65rem] px-1.5 py-0.5 rounded bg-auction-navy text-white">Claim</button>';
         html += '</div>';
         html += '<div class="text-xs text-[var(--text-secondary)]">' + money(t.remaining_budget) + ' left · ' +
-            t.players.length + '/' + (s.max_squad_size || 20) + ' · ' + t.slots_left + ' slots left · max ' + money(t.max_bid) + '</div>';
+            t.players.length + '/' + (s.max_squad_size || 20) + ' · OS ' + (t.overseas_count || 0) + '/8 · ' + t.slots_left + ' slots left · max ' + money(t.max_bid) + '</div>';
         html += '</button>';
     });
     html += '</div>';
 
-    html += '<div class="flex flex-wrap items-end gap-2 mb-3">';
-    html += '<div>';
+    html += '<div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-end gap-2 mb-3">';
+    html += '<div class="w-full sm:w-auto">';
     html += '<label class="block text-[0.65rem] uppercase tracking-wider text-[var(--text-muted)] mb-1">Custom bid (Cr)</label>';
-    html += '<input id="custom-bid-input" type="number" min="' + s.next_min_bid + '" step="0.5" value="' + s.next_min_bid + '" ' +
-        'class="w-28 px-3 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--bg-page)] text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-auction-gold/40" />';
+    html += '<input id="custom-bid-input" type="number" inputmode="decimal" min="' + s.next_min_bid + '" step="0.5" value="' + s.next_min_bid + '" ' +
+        'class="w-full sm:w-28 px-3 py-3 rounded-lg border border-[var(--border)] bg-[var(--bg-page)] text-base sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-auction-gold/40" />';
     html += '</div>';
-    html += '<button onclick="placeCustomBid()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-amber-600 text-white text-sm font-bold hover:bg-amber-500">' +
+    html += '<div class="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto">';
+    html += '<button onclick="placeCustomBid()" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-amber-600 text-white text-sm font-bold hover:bg-amber-500">' +
         '<span class="material-icons text-base">bolt</span> Jump bid</button>';
-    html += '<button onclick="placeBid()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-auction-navy text-white text-sm font-bold hover:opacity-90">' +
+    html += '<button onclick="placeBid()" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-auction-navy text-white text-sm font-bold hover:opacity-90">' +
         '<span class="material-icons text-base">trending_up</span> +' + money(s.bid_increment) + ' → ' + money(s.next_min_bid) + '</button>';
-    const canHammerBar = !(s.room_mode && s.room && !s.room.is_host);
-    if (canHammerBar) {
-        html += '<button onclick="sellPlayer()" ' + (!bid.team_id ? 'disabled' : '') +
-            ' class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-orange-700 text-white text-sm font-black hover:bg-orange-600 disabled:opacity-40 disabled:cursor-not-allowed">' +
-            '<span class="material-icons text-base">gavel</span> SOLD</button>';
-        html += '<button onclick="unsoldPlayer()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-600 text-white text-sm font-black hover:bg-slate-500">' +
-            '<span class="material-icons text-base">block</span> UNSOLD</button>';
-    } else {
-        html += '<span class="text-xs text-[var(--text-muted)] self-center">Host controls SOLD / UNSOLD</span>';
-    }
+    html += '</div>';
     html += '</div>';
     html += '<div class="flex flex-wrap gap-1.5 mb-2">';
     const jumps = [2, 3, 5, 8, 10, 15, 20].filter(v => v >= s.next_min_bid);
     jumps.forEach(v => {
-        html += '<button onclick="placeBidAmount(' + v + ')" class="px-2.5 py-1 rounded-md text-xs font-semibold border border-[var(--border)] bg-[var(--bg-elevated)] hover:border-auction-gold">' +
+        html += '<button onclick="placeBidAmount(' + v + ')" class="px-3 py-2.5 rounded-md text-xs font-semibold border border-[var(--border)] bg-[var(--bg-elevated)] hover:border-auction-gold tap-target">' +
             v.toFixed(1) + ' Cr</button>';
     });
     html += '</div>';
-    html += '<p class="text-xs text-[var(--text-muted)]">Bid or jump → <strong>SOLD</strong>. No interest → <strong>UNSOLD</strong> (works even if a bid is active — clears it).</p>';
+    html += '<p class="text-xs text-[var(--text-muted)]">Bid or jump here. Use <strong>HAMMER · SOLD</strong> / <strong>UNSOLD</strong> on the player card above.</p>';
     html += '</div>';
 
     // Recent
@@ -366,32 +359,56 @@ function render() {
     html += '</div>';
     html += '</div>';
 
-    // Team squads
-    html += '<div class="xl:col-span-3 order-3 space-y-4">';
+    // Team squads (dropdown — same pattern as roadmap categories)
+    html += '<div class="xl:col-span-3 order-2 xl:order-3 space-y-3">';
+    html += '<div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">';
+    html += '<h3 class="text-sm font-bold mb-1">Bought players</h3>';
+    html += '<p class="text-[0.65rem] text-[var(--text-muted)] mb-3">Tap a team to see everyone they have bought.</p>';
     s.teams.forEach(t => {
-        html += '<div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">';
-        html += '<div class="flex items-center justify-between mb-2">';
-        html += '<div class="font-bold">' + escapeHtml(t.name) + '</div>';
-        html += '<div class="text-xs text-[var(--text-secondary)]">' + t.players.length + '/' + (s.max_squad_size || 20) +
-            ' <span class="text-[var(--text-muted)]">(min ' + (s.min_squad_size || 15) + ')</span></div>';
+        const tid = t.id;
+        const nBought = (t.players || []).length;
+        const isOpen = SQUAD_OPEN[tid] === true;
+        html += '<div class="mb-1.5 rounded-lg border border-[var(--border)] overflow-hidden">';
+        html += '<button type="button" onclick="toggleSquad(' + tid + ')" class="w-full flex items-center gap-1.5 px-2 py-2 text-left hover:bg-[var(--bg-elevated)]/50">';
+        html += '<span class="material-icons text-sm text-[var(--text-muted)]">' + (isOpen ? 'expand_more' : 'chevron_right') + '</span>';
+        html += '<div class="min-w-0 flex-1">';
+        html += '<div class="text-xs font-semibold truncate">' + escapeHtml(t.name) + '</div>';
+        if (!isOpen) {
+            html += '<div class="text-[0.65rem] text-[var(--text-muted)] truncate">Spent ' + money(t.spent) +
+                ' · Purse ' + money(t.remaining_budget) +
+                ' · OS ' + (t.overseas_count || 0) + '/8</div>';
+        }
         html += '</div>';
-        html += '<div class="text-xs text-[var(--text-muted)] mb-2">Spent ' + money(t.spent) + ' · Purse ' + money(t.remaining_budget) + '</div>';
-        if (!t.players.length) {
-            html += '<p class="text-xs text-[var(--text-muted)]">Empty squad</p>';
-        } else {
-            html += '<div class="space-y-1 max-h-40 overflow-y-auto">';
-            t.players.forEach(pl => {
-                html += '<div class="flex items-center justify-between text-xs gap-2">';
-                html += '<span class="truncate">' + escapeHtml(pl.name) +
-                    ' <span class="opacity-60">' + roleLabel(pl.role, s.role_labels).split(' ')[0] + '</span></span>';
-                html += '<span class="font-semibold shrink-0">' + money(pl.sold_price) + '</span>';
+        html += '<div class="shrink-0 text-[0.65rem] font-bold tabular-nums text-[var(--text-muted)]">' +
+            nBought + '/' + (s.max_squad_size || 20) + '</div>';
+        html += '</button>';
+        if (isOpen) {
+            html += '<div class="px-2 pb-2 space-y-1">';
+            html += '<div class="text-[0.65rem] text-[var(--text-muted)] px-1 mb-1">Spent ' + money(t.spent) +
+                ' · Purse ' + money(t.remaining_budget) +
+                ' · OS ' + (t.overseas_count || 0) + '/8' +
+                ' · min ' + (s.min_squad_size || 15) + '</div>';
+            if (!nBought) {
+                html += '<p class="text-xs text-[var(--text-muted)] px-1">No players bought yet.</p>';
+            } else {
+                html += '<div class="space-y-0.5 max-h-80 overflow-y-auto">';
+                t.players.forEach(pl => {
+                    const osTag = (pl.country && String(pl.country).toLowerCase() !== 'india')
+                        ? ' <span class="text-[0.6rem] text-sky-600">OS</span>' : '';
+                    html += '<div class="flex items-center justify-between gap-2 text-xs px-2 py-1 rounded-md hover:bg-[var(--bg-elevated)]/40">';
+                    html += '<span class="truncate">' + escapeHtml(pl.name) +
+                        ' <span class="opacity-60">' + roleLabel(pl.role, s.role_labels).split(' ')[0] + '</span>' +
+                        osTag + '</span>';
+                    html += '<span class="font-semibold shrink-0 text-auction-gold">' + money(pl.sold_price) + '</span>';
+                    html += '</div>';
+                });
                 html += '</div>';
-            });
+            }
             html += '</div>';
         }
         html += '</div>';
     });
-    html += '</div>';
+    html += '</div></div>';
 
     html += '</div>';
     root.innerHTML = html;
@@ -402,6 +419,11 @@ function toggleRoadmap(gi) {
     const defaultOpen = g && g.is_current;
     const cur = (ROADMAP_OPEN[gi] === true) || (ROADMAP_OPEN[gi] == null && defaultOpen);
     ROADMAP_OPEN[gi] = !cur;
+    render();
+}
+
+function toggleSquad(teamId) {
+    SQUAD_OPEN[teamId] = !SQUAD_OPEN[teamId];
     render();
 }
 

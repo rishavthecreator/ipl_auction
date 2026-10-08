@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0B1F33">
     <title>{% block title %}Home{% endblock %} - {{ SITE_NAME }}</title>
     <script>
     (function() {
@@ -48,8 +49,16 @@
             --text-muted: #64748B;
             --nav-bg: #060E18;
         }
-        html { font-size: clamp(87.5%, 0.75vw, 200%); }
-        body { font-family: var(--font-body); }
+        html { font-size: 100%; -webkit-text-size-adjust: 100%; }
+        body {
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            padding:
+                env(safe-area-inset-top, 0)
+                env(safe-area-inset-right, 0)
+                env(safe-area-inset-bottom, 0)
+                env(safe-area-inset-left, 0);
+        }
         .display-font { font-family: var(--font-display); letter-spacing: 0.04em; }
         .role-wk { background: #FEF3C7; color: #92400E; }
         .role-batter { background: #DBEAFE; color: #1E40AF; }
@@ -64,6 +73,31 @@
             50% { box-shadow: 0 0 0 10px rgba(232, 163, 23, 0); }
         }
         .auction-live { animation: pulse-glow 1.6s ease-in-out infinite; }
+        /* Drawer: off-canvas below lg */
+        #app-sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.2s ease;
+        }
+        #app-sidebar.is-open { transform: translateX(0); }
+        #nav-backdrop {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+        #nav-backdrop.is-open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        @media (min-width: 1024px) {
+            #app-sidebar { transform: translateX(0) !important; }
+            #nav-backdrop { display: none !important; }
+        }
+        /* Prefer larger tap targets on touch */
+        @media (pointer: coarse) {
+            button, a.nav-link, .tap-target {
+                min-height: 44px;
+            }
+        }
     </style>
     <script>
         tailwind.config = {
@@ -85,31 +119,36 @@
     </script>
     {% block extra_head %}{% endblock %}
 </head>
-<body class="bg-[var(--bg-page)] text-[var(--text-primary)] min-h-screen flex">
+<body class="bg-[var(--bg-page)] text-[var(--text-primary)] min-h-screen">
 
-    <aside class="fixed top-0 left-0 h-full w-56 bg-[var(--nav-bg)] text-[var(--nav-text)] flex flex-col z-50 shadow-xl">
-        <div class="px-5 py-5 border-b border-white/10">
-            <a href="{{ request.script_root }}/" class="flex items-center gap-2.5 no-underline">
-                <span class="material-icons text-auction-gold text-2xl">gavel</span>
-                <div>
-                    <div class="text-base font-bold text-white leading-tight">{{ SITE_NAME }}</div>
+    <div id="nav-backdrop" class="fixed inset-0 z-40 bg-black/50 lg:hidden" onclick="closeNav()" aria-hidden="true"></div>
+
+    <aside id="app-sidebar" class="fixed top-0 left-0 h-full w-64 max-w-[85vw] bg-[var(--nav-bg)] text-[var(--nav-text)] flex flex-col z-50 shadow-xl">
+        <div class="px-5 py-4 border-b border-white/10 flex items-center justify-between gap-2">
+            <a href="{{ request.script_root }}/" class="flex items-center gap-2.5 no-underline min-w-0" onclick="closeNav()">
+                <span class="material-icons text-auction-gold text-2xl shrink-0">gavel</span>
+                <div class="min-w-0">
+                    <div class="text-base font-bold text-white leading-tight truncate">{{ SITE_NAME }}</div>
                     <div class="text-[0.65rem] text-slate-400 tracking-wider uppercase">Live Auction</div>
                 </div>
             </a>
+            <button type="button" onclick="closeNav()" class="lg:hidden p-2 rounded-lg text-slate-300 hover:bg-white/10 hover:text-white" aria-label="Close menu">
+                <span class="material-icons">close</span>
+            </button>
         </div>
 
         <nav class="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-            <a href="{{ request.script_root }}/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors
+            <a href="{{ request.script_root }}/" onclick="closeNav()" class="nav-link flex items-center gap-3 px-3 py-3 rounded-lg text-sm transition-colors
                 {{ 'bg-white/10 text-white' if request.path == '/' else 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
                 <span class="material-icons text-lg">sports_cricket</span>
                 Setup
             </a>
-            <a id="nav-auction" href="{{ request.script_root }}/auction" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors
+            <a id="nav-auction" href="{{ request.script_root }}/auction" onclick="closeNav()" class="nav-link flex items-center gap-3 px-3 py-3 rounded-lg text-sm transition-colors
                 {{ 'bg-white/10 text-white' if request.path == '/auction' else 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
                 <span class="material-icons text-lg">gavel</span>
                 Auction Floor
             </a>
-            <a id="nav-results" href="{{ request.script_root }}/results" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors
+            <a id="nav-results" href="{{ request.script_root }}/results" onclick="closeNav()" class="nav-link flex items-center gap-3 px-3 py-3 rounded-lg text-sm transition-colors
                 {{ 'bg-white/10 text-white' if request.path == '/results' else 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
                 <span class="material-icons text-lg">emoji_events</span>
                 Results
@@ -117,7 +156,7 @@
         </nav>
 
         <div class="px-3 pb-2">
-            <a href="{{ request.script_root }}/about" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors
+            <a href="{{ request.script_root }}/about" onclick="closeNav()" class="nav-link flex items-center gap-3 px-3 py-3 rounded-lg text-sm transition-colors
                 {{ 'bg-white/10 text-white' if request.path == '/about' else 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
                 <span class="material-icons text-lg">info</span>
                 About
@@ -125,30 +164,47 @@
         </div>
 
         <div class="px-4 py-3 border-t border-white/10">
-            <button onclick="toggleTheme()" class="flex items-center gap-2 text-xs text-slate-400 hover:text-white transition-colors">
+            <button type="button" onclick="toggleTheme()" class="flex items-center gap-2 text-xs text-slate-400 hover:text-white transition-colors py-2 w-full">
                 <span class="material-icons text-sm" id="theme-icon">light_mode</span>
                 <span id="theme-label">Light Mode</span>
             </button>
         </div>
     </aside>
 
-    <main class="ml-56 flex-1 min-h-screen">
-        <header class="sticky top-0 z-40 bg-[var(--bg-page)]/80 backdrop-blur-md border-b border-[var(--border)] px-6 py-3 flex items-center justify-between">
-            <div>
-                <h1 class="text-lg font-bold">{% block page_title %}Dashboard{% endblock %}</h1>
-                <p class="text-xs text-[var(--text-muted)]">{% block page_subtitle %}{% endblock %}</p>
+    <main class="lg:ml-64 flex-1 min-h-screen min-w-0 w-full">
+        <header class="sticky top-0 z-30 bg-[var(--bg-page)]/90 backdrop-blur-md border-b border-[var(--border)] px-3 sm:px-6 py-3 flex items-center gap-3">
+            <button type="button" id="nav-open-btn" onclick="openNav()" class="lg:hidden shrink-0 p-2 -ml-1 rounded-lg border border-[var(--border)] bg-[var(--bg-card)] hover:bg-[var(--bg-elevated)]" aria-label="Open menu">
+                <span class="material-icons text-[var(--text-primary)]">menu</span>
+            </button>
+            <div class="min-w-0 flex-1">
+                <h1 class="text-base sm:text-lg font-bold truncate">{% block page_title %}Dashboard{% endblock %}</h1>
+                <p class="text-[0.7rem] sm:text-xs text-[var(--text-muted)] truncate">{% block page_subtitle %}{% endblock %}</p>
             </div>
-            <div class="flex items-center gap-3 text-xs text-[var(--text-secondary)]">
+            <div class="hidden sm:flex items-center gap-3 text-xs text-[var(--text-secondary)] shrink-0">
             </div>
         </header>
 
-        <div class="p-6">
+        <div class="p-3 sm:p-6 max-w-[100vw]">
             {% block content %}{% endblock %}
         </div>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
     <script>
+        function openNav() {
+            document.getElementById('app-sidebar')?.classList.add('is-open');
+            document.getElementById('nav-backdrop')?.classList.add('is-open');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeNav() {
+            document.getElementById('app-sidebar')?.classList.remove('is-open');
+            document.getElementById('nav-backdrop')?.classList.remove('is-open');
+            document.body.style.overflow = '';
+        }
+        window.addEventListener('resize', function() {
+            if (window.matchMedia('(min-width: 1024px)').matches) closeNav();
+        });
+
         function toggleTheme() {
             const html = document.documentElement;
             const isDark = html.classList.toggle('dark');
@@ -238,11 +294,11 @@
             if (!el) {
                 el = document.createElement('div');
                 el.id = 'toast';
-                el.className = 'fixed bottom-6 right-6 z-[100] max-w-sm px-4 py-3 rounded-lg shadow-lg text-sm font-medium hidden';
+                el.className = 'fixed bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-sm z-[100] px-4 py-3 rounded-lg shadow-lg text-sm font-medium hidden';
                 document.body.appendChild(el);
             }
             el.textContent = msg;
-            el.className = 'fixed bottom-6 right-6 z-[100] max-w-sm px-4 py-3 rounded-lg shadow-lg text-sm font-medium ' +
+            el.className = 'fixed bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-sm z-[100] px-4 py-3 rounded-lg shadow-lg text-sm font-medium ' +
                 (isError ? 'bg-red-600 text-white' : 'bg-slate-900 text-white');
             el.classList.remove('hidden');
             clearTimeout(el._t);

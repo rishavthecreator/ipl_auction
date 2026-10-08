@@ -171,7 +171,7 @@
         </div>
     </aside>
 
-    <main class="lg:ml-64 flex-1 min-h-screen min-w-0 w-full">
+    <main class="lg:ml-64 flex-1 min-h-screen min-w-0 w-full max-w-full overflow-x-hidden">
         <header class="sticky top-0 z-30 bg-[var(--bg-page)]/90 backdrop-blur-md border-b border-[var(--border)] px-3 sm:px-6 py-3 flex items-center gap-3">
             <button type="button" id="nav-open-btn" onclick="openNav()" class="lg:hidden shrink-0 p-2 -ml-1 rounded-lg border border-[var(--border)] bg-[var(--bg-card)] hover:bg-[var(--bg-elevated)]" aria-label="Open menu">
                 <span class="material-icons text-[var(--text-primary)]">menu</span>
@@ -184,7 +184,7 @@
             </div>
         </header>
 
-        <div class="p-3 sm:p-6 max-w-[100vw]">
+        <div class="p-3 sm:p-5 lg:p-6 w-full max-w-full box-border">
             {% block content %}{% endblock %}
         </div>
     </main>

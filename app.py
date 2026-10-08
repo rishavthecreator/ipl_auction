@@ -46,19 +46,52 @@ def create_app(config_name: str | None = None) -> Flask:
 
     _CSRF_EXEMPT = frozenset({'favicon', 'static', 'health'})
 
+    def _set_csrf_cookie(response):
+        """Mirror CSRF into a readable cookie so JS can recover if the HTML token is stale."""
+        token = session.get('_csrf_token') or ''
+        if not token:
+            return response
+        response.set_cookie(
+            'csrf_token',
+            token,
+            httponly=False,
+            samesite=app.config.get('SESSION_COOKIE_SAMESITE', 'Lax'),
+            secure=bool(app.config.get('SESSION_COOKIE_SECURE')),
+            path='/',
+        )
+        return response
+
     @app.before_request
     def csrf_protect():
         if request.method not in ('POST', 'PUT', 'PATCH', 'DELETE'):
             return
         if request.endpoint in _CSRF_EXEMPT:
             return
+        # Room join / auction APIs are JSON + client_id based (not cookie-auth).
+        # Requiring a Flask session CSRF cookie breaks guests who can load the page
+        # but do not round-trip the HttpOnly session cookie. Cross-site form posts
+        # are still protected (they are not application/json).
+        ctype = (request.content_type or '').split(';')[0].strip().lower()
+        if request.path.startswith('/api/') and (request.is_json or ctype == 'application/json'):
+            return
+        payload = request.get_json(silent=True) or {}
         token = (
             request.form.get('csrf_token')
             or request.headers.get('X-CSRFToken')
+            or request.headers.get('X-CSRF-Token')
+            or payload.get('csrf_token')
             or ''
         ).strip()
         session_token = session.get('_csrf_token') or ''
-        if not token or not session_token or not secrets.compare_digest(token, session_token):
+        cookie_token = (request.cookies.get('csrf_token') or '').strip()
+        valid = False
+        if token and session_token and secrets.compare_digest(token, session_token):
+            valid = True
+        elif token and cookie_token and secrets.compare_digest(token, cookie_token):
+            # Double-submit: restore session token if the HttpOnly cookie was dropped
+            session['_csrf_token'] = cookie_token
+            valid = True
+        if not valid:
             if request.is_json or request.headers.get('Accept', '').startswith('application/json'):
                 return jsonify({'error': 'Missing or invalid CSRF token.'}), 400
             return 'Missing or invalid CSRF token.', 400
@@ -67,7 +100,7 @@ def create_app(config_name: str | None = None) -> Flask:
     def csrf_ensure_token(response):
         if '_csrf_token' not in session:
             session['_csrf_token'] = secrets.token_hex(16)
-        return response
+        return _set_csrf_cookie(response)
 
     from blueprints.home import bp as home_bp
     from blueprints.about import bp as about_bp

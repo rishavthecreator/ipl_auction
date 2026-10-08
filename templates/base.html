@@ -224,6 +224,14 @@
 
         const CSRF_TOKEN = '{{ csrf_token() }}';
 
+        function getCsrfToken() {
+            try {
+                var m = document.cookie.match(/(?:^|; )csrf_token=([^;]*)/);
+                if (m && m[1]) return decodeURIComponent(m[1]);
+            } catch (e) {}
+            return CSRF_TOKEN;
+        }
+
         const BASE_PATH = (function() {
             var flaskPath = "{{ request.path }}";
             var browserPath = window.location.pathname;
@@ -252,15 +260,33 @@
 
         function fetchJSON(url, options) {
             const fullUrl = BASE_PATH + url;
+            const csrf = getCsrfToken();
             const opts = Object.assign({
+                credentials: 'same-origin',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': CSRF_TOKEN,
+                    'X-CSRFToken': csrf,
+                    'X-CSRF-Token': csrf,
                 },
             }, options || {});
-            if (opts.headers && options && options.headers) {
-                opts.headers = Object.assign({}, opts.headers, options.headers);
+            // Re-apply defaults after shallow Object.assign so callers cannot drop CSRF headers
+            opts.credentials = 'same-origin';
+            opts.headers = Object.assign({
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrf,
+                'X-CSRF-Token': csrf,
+            }, (options && options.headers) || {});
+            // Embed csrf_token in JSON bodies as a fallback for proxies that strip custom headers
+            if (opts.body && typeof opts.body === 'string' && (opts.method || 'GET').toUpperCase() !== 'GET') {
+                try {
+                    var parsed = JSON.parse(opts.body);
+                    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && !parsed.csrf_token) {
+                        parsed.csrf_token = csrf;
+                        opts.body = JSON.stringify(parsed);
+                    }
+                } catch (e) {}
             }
             return fetch(fullUrl, opts).then(async r => {
                 const data = await r.json().catch(() => ({}));

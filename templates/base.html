@@ -73,30 +73,32 @@
             50% { box-shadow: 0 0 0 10px rgba(232, 163, 23, 0); }
         }
         .auction-live { animation: pulse-glow 1.6s ease-in-out infinite; }
-        /* Drawer: off-canvas below lg */
-        #app-sidebar {
-            transform: translateX(-100%);
-            transition: transform 0.2s ease;
-        }
-        #app-sidebar.is-open { transform: translateX(0); }
-        #nav-backdrop {
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease;
-        }
-        #nav-backdrop.is-open {
-            opacity: 1;
-            pointer-events: auto;
+        /*
+         * Mobile drawer only. On laptop/desktop do NOT set transform at all —
+         * transform (even translateX(0)) breaks layout/sticky vs the private app shell.
+         */
+        @media (max-width: 1023.98px) {
+            #app-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.2s ease;
+                width: min(16rem, 85vw);
+            }
+            #app-sidebar.is-open { transform: translateX(0); }
+            #nav-backdrop {
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.2s ease;
+            }
+            #nav-backdrop.is-open {
+                opacity: 1;
+                pointer-events: auto;
+            }
         }
         @media (min-width: 1024px) {
-            #app-sidebar { transform: translateX(0) !important; }
             #nav-backdrop { display: none !important; }
         }
-        /* Prefer larger tap targets on touch */
         @media (pointer: coarse) {
-            button, a.nav-link, .tap-target {
-                min-height: 44px;
-            }
+            button, a.nav-link, .tap-target { min-height: 44px; }
         }
     </style>
     <script>
@@ -119,12 +121,13 @@
     </script>
     {% block extra_head %}{% endblock %}
 </head>
-<body class="bg-[var(--bg-page)] text-[var(--text-primary)] min-h-screen">
+<body class="bg-[var(--bg-page)] text-[var(--text-primary)] min-h-screen flex overflow-x-hidden">
 
     <div id="nav-backdrop" class="fixed inset-0 z-40 bg-black/50 lg:hidden" onclick="closeNav()" aria-hidden="true"></div>
 
-    <aside id="app-sidebar" class="fixed top-0 left-0 h-full w-64 max-w-[85vw] bg-[var(--nav-bg)] text-[var(--nav-text)] flex flex-col z-50 shadow-xl">
-        <div class="px-5 py-4 border-b border-white/10 flex items-center justify-between gap-2">
+    <!-- w-56 + ml-56 matches ipl_auction laptop shell; drawer CSS only applies below lg -->
+    <aside id="app-sidebar" class="fixed top-0 left-0 h-full w-56 bg-[var(--nav-bg)] text-[var(--nav-text)] flex flex-col z-50 shadow-xl">
+        <div class="px-5 py-5 border-b border-white/10 flex items-center justify-between gap-2">
             <a href="{{ request.script_root }}/" class="flex items-center gap-2.5 no-underline min-w-0" onclick="closeNav()">
                 <span class="material-icons text-auction-gold text-2xl shrink-0">gavel</span>
                 <div class="min-w-0">
@@ -138,17 +141,17 @@
         </div>
 
         <nav class="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-            <a href="{{ request.script_root }}/" onclick="closeNav()" class="nav-link flex items-center gap-3 px-3 py-3 rounded-lg text-sm transition-colors
+            <a href="{{ request.script_root }}/" onclick="closeNav()" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors
                 {{ 'bg-white/10 text-white' if request.path == '/' else 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
                 <span class="material-icons text-lg">sports_cricket</span>
                 Setup
             </a>
-            <a id="nav-auction" href="{{ request.script_root }}/auction" onclick="closeNav()" class="nav-link flex items-center gap-3 px-3 py-3 rounded-lg text-sm transition-colors
+            <a id="nav-auction" href="{{ request.script_root }}/auction" onclick="closeNav()" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors
                 {{ 'bg-white/10 text-white' if request.path == '/auction' else 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
                 <span class="material-icons text-lg">gavel</span>
                 Auction Floor
             </a>
-            <a id="nav-results" href="{{ request.script_root }}/results" onclick="closeNav()" class="nav-link flex items-center gap-3 px-3 py-3 rounded-lg text-sm transition-colors
+            <a id="nav-results" href="{{ request.script_root }}/results" onclick="closeNav()" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors
                 {{ 'bg-white/10 text-white' if request.path == '/results' else 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
                 <span class="material-icons text-lg">emoji_events</span>
                 Results
@@ -156,7 +159,7 @@
         </nav>
 
         <div class="px-3 pb-2">
-            <a href="{{ request.script_root }}/about" onclick="closeNav()" class="nav-link flex items-center gap-3 px-3 py-3 rounded-lg text-sm transition-colors
+            <a href="{{ request.script_root }}/about" onclick="closeNav()" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors
                 {{ 'bg-white/10 text-white' if request.path == '/about' else 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
                 <span class="material-icons text-lg">info</span>
                 About
@@ -164,15 +167,16 @@
         </div>
 
         <div class="px-4 py-3 border-t border-white/10">
-            <button type="button" onclick="toggleTheme()" class="flex items-center gap-2 text-xs text-slate-400 hover:text-white transition-colors py-2 w-full">
+            <button type="button" onclick="toggleTheme()" class="flex items-center gap-2 text-xs text-slate-400 hover:text-white transition-colors">
                 <span class="material-icons text-sm" id="theme-icon">light_mode</span>
                 <span id="theme-label">Light Mode</span>
             </button>
         </div>
     </aside>
 
-    <main class="lg:ml-64 flex-1 min-h-screen min-w-0 w-full max-w-full overflow-x-hidden">
-        <header class="sticky top-0 z-30 bg-[var(--bg-page)]/90 backdrop-blur-md border-b border-[var(--border)] px-3 sm:px-6 py-3 flex items-center gap-3">
+    <!-- No w-full: with ml-56 + w-full the pane overflows and clips the right column on laptops -->
+    <main class="ml-0 lg:ml-56 flex-1 min-h-screen min-w-0">
+        <header class="sticky top-0 z-40 bg-[var(--bg-page)]/80 backdrop-blur-md border-b border-[var(--border)] px-3 sm:px-6 py-3 flex items-center gap-3">
             <button type="button" id="nav-open-btn" onclick="openNav()" class="lg:hidden shrink-0 p-2 -ml-1 rounded-lg border border-[var(--border)] bg-[var(--bg-card)] hover:bg-[var(--bg-elevated)]" aria-label="Open menu">
                 <span class="material-icons text-[var(--text-primary)]">menu</span>
             </button>
@@ -180,11 +184,9 @@
                 <h1 class="text-base sm:text-lg font-bold truncate">{% block page_title %}Dashboard{% endblock %}</h1>
                 <p class="text-[0.7rem] sm:text-xs text-[var(--text-muted)] truncate">{% block page_subtitle %}{% endblock %}</p>
             </div>
-            <div class="hidden sm:flex items-center gap-3 text-xs text-[var(--text-secondary)] shrink-0">
-            </div>
         </header>
 
-        <div class="p-3 sm:p-5 lg:p-6 w-full max-w-full box-border">
+        <div class="p-3 sm:p-6">
             {% block content %}{% endblock %}
         </div>
     </main>

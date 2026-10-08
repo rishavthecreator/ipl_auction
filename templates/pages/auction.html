@@ -133,11 +133,11 @@ function render() {
     html += '</div>';
     html += '<div class="h-1.5 rounded-full bg-[var(--bg-elevated)] mb-6"><div class="h-1.5 rounded-full bg-auction-gold" style="width:' + progressPct + '%"></div></div>';
 
-    html += '<div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 w-full min-w-0">';
+    html += '<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">';
 
     // ===== Category tracker / roadmap (left) =====
-    html += '<div class="lg:col-span-3 order-3 lg:order-1 min-w-0">';
-    html += '<div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4 lg:sticky lg:top-20 max-h-[40vh] lg:max-h-[calc(100vh-8rem)] overflow-y-auto">';
+    html += '<div class="xl:col-span-3 order-2 xl:order-1">';
+    html += '<div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4 sticky top-20 max-h-[80vh] overflow-y-auto">';
     html += '<div class="flex items-center justify-between mb-2">';
     html += '<h3 class="text-sm font-bold">Auction roadmap</h3>';
     html += '<span class="text-[0.65rem] text-[var(--text-muted)]">' + (s.remaining_count || 0) + ' left</span>';
@@ -204,13 +204,13 @@ function render() {
     html += '</div></div>';
 
     // ===== Main floor =====
-    html += '<div class="lg:col-span-6 order-1 lg:order-2 space-y-4 min-w-0">';
+    html += '<div class="xl:col-span-6 order-1 xl:order-2 space-y-4">';
     html += '<div class="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] p-4 sm:p-6 auction-live">';
     if (p) {
         html += '<div class="flex items-start justify-between gap-3 sm:gap-4">';
         html += '<div class="min-w-0 flex-1">';
         html += '<div class="text-[0.65rem] sm:text-xs uppercase tracking-widest text-[var(--text-muted)] mb-1 break-words">Now auctioning · Round ' + (s.round || 1) + ' · #' + (s.current_index + 1) + ' of ' + s.auction_pool_size + '</div>';
-        html += '<div class="display-font text-3xl sm:text-4xl lg:text-5xl leading-none mb-2 break-words">' + escapeHtml(p.name) + '</div>';
+        html += '<div class="display-font text-3xl sm:text-5xl md:text-6xl leading-none mb-2 break-words">' + escapeHtml(p.name) + '</div>';
         const tierLab = (s.tier_labels && p.tier) ? (s.tier_labels[p.tier] || p.tier) : (p.tier || '');
         html += '<div class="flex flex-wrap gap-1.5">' +
             (tierLab ? '<span class="inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-900">' + tierLab + '</span>' : '') +
@@ -359,7 +359,7 @@ function render() {
     html += '</div>';
 
     // Team squads (dropdown — same pattern as roadmap categories)
-    html += '<div class="lg:col-span-3 order-2 lg:order-3 space-y-3 min-w-0">';
+    html += '<div class="xl:col-span-3 order-3 space-y-3">';
     html += '<div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">';
     html += '<h3 class="text-sm font-bold mb-1">Bought players</h3>';
     html += '<p class="text-[0.65rem] text-[var(--text-muted)] mb-3">Tap a team to see everyone they have bought.</p>';

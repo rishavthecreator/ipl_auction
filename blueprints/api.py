@@ -224,6 +224,74 @@ def unsold():
         return _error(str(e))
 
 
+
+
+@bp.route('/pause', methods=['POST'])
+def pause():
+    """Pause or resume the auction. Host-only in rooms."""
+    payload = request.get_json(silent=True) or {}
+    code = _room_code()
+    paused = payload.get('paused')
+    if paused is None:
+        return _error('paused (true/false) is required')
+    paused = bool(paused)
+    try:
+        if code:
+            client_id = _client_id()
+
+            def _do():
+                rooms_svc.assert_host(auction_svc._state, client_id)
+                return auction_svc.set_paused(paused)
+
+            _, fresh = rooms_svc.run_in_room(code, _do)
+            return jsonify({'ok': True, 'state': rooms_svc.public_room(fresh, client_id)})
+        state = auction_svc.set_paused(paused)
+        return jsonify({'ok': True, 'state': state})
+    except ValueError as e:
+        return _error(str(e))
+
+
+@bp.route('/tick', methods=['POST', 'GET'])
+def tick():
+    """Resolve expired bid timer (auto sell / unsold)."""
+    code = _room_code()
+    try:
+        if code:
+            client_id = _client_id()
+
+            def _do():
+                st = auction_svc._state
+                auction_svc.ensure_bid_timer(st)
+                return auction_svc._public_state(st)
+
+            _, fresh = rooms_svc.run_in_room(code, _do)
+            return jsonify({'ok': True, 'state': rooms_svc.public_room(fresh, client_id)})
+        state = auction_svc.tick_auction()
+        return jsonify({'ok': True, 'state': state})
+    except ValueError as e:
+        return _error(str(e))
+
+
+@bp.route('/undo', methods=['POST'])
+def undo():
+    """Undo last sold / unsold."""
+    code = _room_code()
+    try:
+        if code:
+            client_id = _client_id()
+
+            def _do():
+                rooms_svc.assert_host(auction_svc._state, client_id)
+                return auction_svc.undo_last()
+
+            _, fresh = rooms_svc.run_in_room(code, _do)
+            return jsonify({'ok': True, 'state': rooms_svc.public_room(fresh, client_id)})
+        state = auction_svc.undo_last()
+        return jsonify({'ok': True, 'state': state})
+    except ValueError as e:
+        return _error(str(e))
+
+
 @bp.route('/cpu-round', methods=['POST'])
 def cpu_round():
     try:

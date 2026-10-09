@@ -6,6 +6,7 @@ import json
 import os
 import random
 import threading
+import time
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -234,6 +235,10 @@ def _empty_state() -> Dict[str, Any]:
         'solo_mode': False,
         'human_team_id': None,
         'human_raises_on_current': 0,
+        'bid_ends_at': None,
+        'undo_stack': [],
+        'paused': False,
+        'bid_remaining_on_pause': None,
     }
 
 
@@ -266,6 +271,10 @@ def get_state() -> Dict[str, Any]:
                 _state.setdefault('solo_mode', False)
                 _state.setdefault('human_team_id', None)
                 _state.setdefault('human_raises_on_current', 0)
+                _state.setdefault('bid_ends_at', None)
+                _state.setdefault('undo_stack', [])
+                _state.setdefault('paused', False)
+                _state.setdefault('bid_remaining_on_pause', None)
             else:
                 _state = _empty_state()
         return deepcopy(_state)
@@ -1086,10 +1095,15 @@ def start_auction(
         'solo_mode': bool(solo_mode),
         'human_team_id': human_team_id,
         'human_raises_on_current': 0,
+        'bid_ends_at': None,
+        'undo_stack': [],
+        'paused': False,
+        'bid_remaining_on_pause': None,
     }
     if solo_mode:
         from services.cpu_bots import attach_cpu_profiles
         attach_cpu_profiles(state)
+    _arm_bid_timer(state)
     with _lock:
         _save(state)
         return deepcopy(state)
@@ -1164,7 +1178,172 @@ def _start_reaution_round(state: Dict[str, Any]) -> bool:
         'price': None,
         'outcome': 'reaution_start',
     })
+    _arm_bid_timer(state)
     return True
+
+
+
+def _timer_seconds() -> float:
+    return float(current_app.config.get('BID_TIMER_SECONDS', 15))
+
+
+def _arm_bid_timer(state: Dict[str, Any]) -> None:
+    """Start / reset the bid countdown for the current player."""
+    if state.get('status') != 'auction' or _current_player(state) is None:
+        state['bid_ends_at'] = None
+        return
+    if state.get('paused'):
+        state['bid_ends_at'] = None
+        return
+    state['bid_ends_at'] = time.time() + _timer_seconds()
+
+
+def _push_undo(state: Dict[str, Any]) -> None:
+    stack = state.setdefault('undo_stack', [])
+    snap = deepcopy(state)
+    snap.pop('undo_stack', None)
+    stack.append(snap)
+    max_n = int(current_app.config.get('UNDO_STACK_MAX', 30))
+    while len(stack) > max_n:
+        stack.pop(0)
+
+
+def resolve_bid_timer(state: Dict[str, Any]) -> bool:
+    """If the bid timer has expired, sell or mark unsold. Returns True if resolved."""
+    if state.get('status') != 'auction':
+        return False
+    if state.get('paused'):
+        return False
+    if _current_player(state) is None:
+        return False
+    ends = state.get('bid_ends_at')
+    if ends is None:
+        return False
+    if time.time() < float(ends):
+        return False
+    bid = state.get('current_bid') or {}
+    if bid.get('team_id') and float(bid.get('amount') or 0) > 0:
+        try:
+            _apply_sell(state)
+        except ValueError:
+            _apply_unsold(state)
+    else:
+        _apply_unsold(state)
+    return True
+
+
+def ensure_bid_timer(state: Dict[str, Any]) -> bool:
+    """Resolve expired timer, or arm a missing timer. Returns True if state changed."""
+    if resolve_bid_timer(state):
+        return True
+    if (
+        state.get('status') == 'auction'
+        and _current_player(state) is not None
+        and state.get('bid_ends_at') is None
+    ):
+        _arm_bid_timer(state)
+        return True
+    return False
+
+
+def _apply_sell(state: Dict[str, Any]) -> None:
+    """Sell current player to highest bidder and advance (mutates state)."""
+    if state['status'] != 'auction':
+        raise ValueError('Auction is not in progress.')
+    if state.get('paused'):
+        raise ValueError('Auction is paused.')
+
+    player = _current_player(state)
+    if player is None:
+        raise ValueError('No player currently up for auction.')
+
+    bid = state.get('current_bid') or {}
+    if not bid.get('team_id') or bid.get('amount', 0) <= 0:
+        raise ValueError('Need at least one bid to sell. Use UNSOLD if nobody bids.')
+
+    team = _team_by_id(state, bid['team_id'])
+    if team is None:
+        raise ValueError('Bidding team not found.')
+
+    price = round(float(bid['amount']), 2)
+    if _slots_left(team) <= 0:
+        raise ValueError(f'{team["name"]} has a full squad.')
+    _assert_can_buy_overseas(team, player)
+    if price > _remaining_budget(team) + 1e-9:
+        raise ValueError(f'{team["name"]} cannot afford {price} Cr.')
+
+    _push_undo(state)
+
+    sold_player = deepcopy(player)
+    sold_player['sold_to'] = team['id']
+    sold_player['sold_to_name'] = team['name']
+    sold_player['sold_price'] = price
+    sold_player['status'] = 'sold'
+
+    pool_player = state['auction_pool'][state['current_index']]
+    pool_player['sold_to'] = team['id']
+    pool_player['sold_to_name'] = team['name']
+    pool_player['sold_price'] = price
+    pool_player['status'] = 'sold'
+
+    team['players'].append(sold_player)
+    team['spent'] = round(team['spent'] + price, 2)
+
+    state.setdefault('sold', []).append(sold_player)
+    state.setdefault('history', []).append({
+        'player_id': sold_player['id'],
+        'player_name': sold_player['name'],
+        'role': sold_player['role'],
+        'tier': sold_player.get('tier'),
+        'team_id': team['id'],
+        'team_name': team['name'],
+        'price': price,
+        'outcome': 'sold',
+        'round': state.get('round', 1),
+    })
+
+    _advance(state)
+
+
+def _apply_unsold(state: Dict[str, Any]) -> None:
+    """Mark current player unsold and advance (mutates state)."""
+    if state['status'] != 'auction':
+        raise ValueError('Auction is not in progress.')
+    if state.get('paused'):
+        raise ValueError('Auction is paused.')
+
+    player = _current_player(state)
+    if player is None:
+        raise ValueError('No player currently up for auction.')
+
+    _push_undo(state)
+
+    unsold_player = deepcopy(player)
+    unsold_player['sold_to'] = None
+    unsold_player['sold_to_name'] = None
+    unsold_player['sold_price'] = None
+    unsold_player['status'] = 'unsold'
+
+    pool_player = state['auction_pool'][state['current_index']]
+    pool_player['sold_to'] = None
+    pool_player['sold_to_name'] = None
+    pool_player['sold_price'] = None
+    pool_player['status'] = 'unsold'
+
+    state.setdefault('unsold', []).append(unsold_player)
+    state.setdefault('history', []).append({
+        'player_id': unsold_player['id'],
+        'player_name': unsold_player['name'],
+        'role': unsold_player['role'],
+        'tier': unsold_player.get('tier'),
+        'team_id': None,
+        'team_name': None,
+        'price': None,
+        'outcome': 'unsold',
+        'round': state.get('round', 1),
+    })
+
+    _advance(state)
 
 
 def place_bid(
@@ -1176,8 +1355,16 @@ def place_bid(
     """Place or raise bid for the current player. amount=None means +increment (or base)."""
     with _lock:
         state = get_state()
+        if resolve_bid_timer(state):
+            _save(state)
+            raise ValueError('Bidding closed — timer expired. Player was sold or unsold.')
+        if state.get('bid_ends_at') is None and state.get('status') == 'auction' and not state.get('paused'):
+            _arm_bid_timer(state)
+
         if state['status'] != 'auction':
             raise ValueError('Auction is not in progress.')
+        if state.get('paused'):
+            raise ValueError('Auction is paused.')
 
         player = _current_player(state)
         if player is None:
@@ -1239,6 +1426,7 @@ def place_bid(
         }
         if state.get('solo_mode') and (not team.get('is_cpu')) and (not allow_cpu):
             state['human_raises_on_current'] = int(state.get('human_raises_on_current') or 0) + 1
+        _arm_bid_timer(state)
         _save(state)
         return _public_state(state)
 
@@ -1248,6 +1436,7 @@ def _advance(state: Dict[str, Any]) -> None:
     state['current_bid'] = {'amount': 0.0, 'team_id': None, 'team_name': None}
     state['human_raises_on_current'] = 0
     if state['current_index'] < len(state['auction_pool']):
+        _arm_bid_timer(state)
         return
 
     # End of current pool
@@ -1257,106 +1446,101 @@ def _advance(state: Dict[str, Any]) -> None:
         if _start_reaution_round(state):
             return
     state['status'] = 'finished'
+    state['bid_ends_at'] = None
 
 
 def sell_current() -> Dict[str, Any]:
     """Sell current player to highest bidder."""
     with _lock:
         state = get_state()
-        if state['status'] != 'auction':
-            raise ValueError('Auction is not in progress.')
-
-        player = _current_player(state)
-        if player is None:
-            raise ValueError('No player currently up for auction.')
-
-        bid = state.get('current_bid') or {}
-        if not bid.get('team_id') or bid.get('amount', 0) <= 0:
-            raise ValueError('Need at least one bid to sell. Use UNSOLD if nobody bids.')
-
-        team = _team_by_id(state, bid['team_id'])
-        if team is None:
-            raise ValueError('Bidding team not found.')
-
-        price = round(float(bid['amount']), 2)
-        if _slots_left(team) <= 0:
-            raise ValueError(f'{team["name"]} has a full squad.')
-        _assert_can_buy_overseas(team, player)
-        if price > _remaining_budget(team) + 1e-9:
-            raise ValueError(f'{team["name"]} cannot afford {price} Cr.')
-
-        sold_player = deepcopy(player)
-        sold_player['sold_to'] = team['id']
-        sold_player['sold_to_name'] = team['name']
-        sold_player['sold_price'] = price
-        sold_player['status'] = 'sold'
-
-        pool_player = state['auction_pool'][state['current_index']]
-        pool_player['sold_to'] = team['id']
-        pool_player['sold_to_name'] = team['name']
-        pool_player['sold_price'] = price
-        pool_player['status'] = 'sold'
-
-        team['players'].append(sold_player)
-        team['spent'] = round(team['spent'] + price, 2)
-
-        state.setdefault('sold', []).append(sold_player)
-        state.setdefault('history', []).append({
-            'player_id': sold_player['id'],
-            'player_name': sold_player['name'],
-            'role': sold_player['role'],
-            'tier': sold_player.get('tier'),
-            'team_id': team['id'],
-            'team_name': team['name'],
-            'price': price,
-            'outcome': 'sold',
-            'round': state.get('round', 1),
-        })
-
-        _advance(state)
+        _apply_sell(state)
         _save(state)
         return _public_state(state)
+
+
 
 
 def unsold_current() -> Dict[str, Any]:
     """Mark current player unsold and move on. Clears any active bid."""
     with _lock:
         state = get_state()
-        if state['status'] != 'auction':
-            raise ValueError('Auction is not in progress.')
-
-        player = _current_player(state)
-        if player is None:
-            raise ValueError('No player currently up for auction.')
-
-        unsold_player = deepcopy(player)
-        unsold_player['sold_to'] = None
-        unsold_player['sold_to_name'] = None
-        unsold_player['sold_price'] = None
-        unsold_player['status'] = 'unsold'
-
-        pool_player = state['auction_pool'][state['current_index']]
-        pool_player['sold_to'] = None
-        pool_player['sold_to_name'] = None
-        pool_player['sold_price'] = None
-        pool_player['status'] = 'unsold'
-
-        state.setdefault('unsold', []).append(unsold_player)
-        state.setdefault('history', []).append({
-            'player_id': unsold_player['id'],
-            'player_name': unsold_player['name'],
-            'role': unsold_player['role'],
-            'tier': unsold_player.get('tier'),
-            'team_id': None,
-            'team_name': None,
-            'price': None,
-            'outcome': 'unsold',
-            'round': state.get('round', 1),
-        })
-
-        _advance(state)
+        _apply_unsold(state)
         _save(state)
         return _public_state(state)
+
+
+def undo_last() -> Dict[str, Any]:
+    """Undo the last sold / unsold outcome (mistake recovery)."""
+    with _lock:
+        state = get_state()
+        stack = list(state.get('undo_stack') or [])
+        if not stack:
+            raise ValueError('Nothing to undo.')
+        snap = stack.pop()
+        restored = deepcopy(snap)
+        restored['undo_stack'] = stack
+        if restored.get('status') == 'auction' and _current_player(restored) is not None:
+            _arm_bid_timer(restored)
+        else:
+            restored['bid_ends_at'] = None
+        _save(restored)
+        return _public_state(restored)
+
+
+def tick_auction() -> Dict[str, Any]:
+    """Resolve expired bid timer if needed; return fresh public state."""
+    with _lock:
+        state = get_state()
+        if ensure_bid_timer(state):
+            _save(state)
+        return _public_state(state)
+
+
+
+def set_paused(paused: bool) -> Dict[str, Any]:
+    """Pause or resume the live auction (freezes / restores bid timer)."""
+    with _lock:
+        state = get_state()
+        if state.get('status') != 'auction':
+            raise ValueError('Auction is not in progress.')
+        want = bool(paused)
+        is_paused = bool(state.get('paused'))
+        if want == is_paused:
+            return _public_state(state)
+
+        if want:
+            ends = state.get('bid_ends_at')
+            if ends is not None:
+                state['bid_remaining_on_pause'] = max(0.0, float(ends) - time.time())
+            else:
+                rem = state.get('bid_remaining_on_pause')
+                state['bid_remaining_on_pause'] = (
+                    float(rem) if rem is not None else _timer_seconds()
+                )
+            state['paused'] = True
+            state['bid_ends_at'] = None
+        else:
+            rem = state.get('bid_remaining_on_pause')
+            if rem is None:
+                rem = _timer_seconds()
+            state['paused'] = False
+            state['bid_remaining_on_pause'] = None
+            if _current_player(state) is not None:
+                state['bid_ends_at'] = time.time() + max(0.0, float(rem))
+            else:
+                state['bid_ends_at'] = None
+        _save(state)
+        return _public_state(state)
+
+
+def pause_auction() -> Dict[str, Any]:
+    return set_paused(True)
+
+
+def resume_auction() -> Dict[str, Any]:
+    return set_paused(False)
+
+
 
 
 def _auction_pipeline(state: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -1595,6 +1779,21 @@ def _public_state(state: Dict[str, Any]) -> Dict[str, Any]:
         'solo_mode': bool(state.get('solo_mode')),
         'human_team_id': state.get('human_team_id'),
         'human_raises_on_current': int(state.get('human_raises_on_current') or 0),
+        'bid_ends_at': state.get('bid_ends_at'),
+        'bid_seconds_left': (
+            max(0.0, round(float(state['bid_remaining_on_pause']), 1))
+            if state.get('paused') and state.get('status') == 'auction'
+            and state.get('bid_remaining_on_pause') is not None
+            else (
+                max(0.0, round(float(state['bid_ends_at']) - time.time(), 1))
+                if state.get('bid_ends_at') and state.get('status') == 'auction'
+                else None
+            )
+        ),
+        'bid_timer_seconds': _timer_seconds(),
+        'can_undo': bool(state.get('undo_stack')),
+        'paused': bool(state.get('paused')),
+        'bid_remaining_on_pause': state.get('bid_remaining_on_pause'),
         'base_prices': {
             'marquee': float(current_app.config['BASE_PRICE_MARQUEE']),
             'capped': float(current_app.config['BASE_PRICE_CAPPED']),
@@ -1605,7 +1804,10 @@ def _public_state(state: Dict[str, Any]) -> Dict[str, Any]:
 
 def get_public_state() -> Dict[str, Any]:
     with _lock:
-        return _public_state(get_state())
+        state = get_state()
+        if ensure_bid_timer(state):
+            _save(state)
+        return _public_state(state)
 
 
 
@@ -1622,6 +1824,8 @@ def run_cpu_bid_round(max_bids: int = 1) -> Dict[str, Any]:
             raise ValueError('Auction is not in progress.')
         if not state.get('solo_mode'):
             raise ValueError('CPU bidding is only available in Solo (You vs CPU) mode.')
+        if state.get('paused'):
+            raise ValueError('Auction is paused.')
 
         from services.cpu_bots import attach_cpu_profiles
         attach_cpu_profiles(state)
@@ -1674,6 +1878,10 @@ def run_cpu_bid_round(max_bids: int = 1) -> Dict[str, Any]:
             })
 
         cache = state.get('_cpu_ceilings')
+        if actions:
+            _arm_bid_timer(state)
+        elif state.get('bid_ends_at') is None:
+            _arm_bid_timer(state)
         _save(state)
         if cache is not None and _state is not None:
             _state['_cpu_ceilings'] = cache

@@ -49,15 +49,32 @@ document.addEventListener('DOMContentLoaded', function() {
     ROOM_CODE = params.get('room') || localStorage.getItem('ipl_room_code') || '';
     if (ROOM_CODE) localStorage.setItem('ipl_room_code', ROOM_CODE);
     refresh();
-    if (ROOM_CODE) POLL_TIMER = setInterval(refresh, 1500);
+    if (POLL_TIMER) clearInterval(POLL_TIMER);
+    POLL_TIMER = setInterval(refresh, 1000);
+    startLocalBidClock();
 });
 
 let LAST_CPU_PLAYER_ID = null;
+let LAST_HISTORY_LEN = null;
+let TICK_IN_FLIGHT = false;
+let LOCAL_CLOCK = null;
 
 async function refresh() {
     try {
         const data = await fetchJSON(stateUrl());
+        const prevHist = LAST_HISTORY_LEN;
         STATE = data.state;
+        const histLen = (STATE.history || []).length;
+        if (prevHist != null && histLen > prevHist) {
+            const last = (STATE.history || []).slice(-1)[0];
+            if (last && last.outcome === 'sold') {
+                toast('SOLD! ' + last.player_name + ' → ' + last.team_name + ' @ ' + money(last.price));
+            } else if (last && last.outcome === 'unsold') {
+                toast('Unsold: ' + last.player_name + ' (timer)');
+            }
+            LAST_CPU_PLAYER_ID = null;
+        }
+        LAST_HISTORY_LEN = histLen;
         if (STATE.status === 'finished') {
             window.location.href = BASE_PATH + '/results';
             return;
@@ -129,9 +146,32 @@ function render() {
     html += ' · Sold <strong class="text-auction-gold">' + s.sold_count + '</strong>';
     html += ' · Unsold <strong class="text-slate-500">' + (s.unsold_count || 0) + '</strong>';
     html += ' · Left <strong>' + s.remaining_count + '</strong></div>';
-    html += '<button onclick="resetAuction()" class="text-xs px-3 py-1.5 rounded-lg border border-[var(--border)] hover:bg-[var(--bg-elevated)]">Reset auction</button>';
+    html += '<div class="flex flex-wrap items-center gap-2">';
+    const canPause = !(s.room_mode && s.room && !s.room.is_host);
+    if (s.paused) {
+        html += '<span class="inline-flex items-center gap-1 text-xs font-bold text-amber-700 bg-amber-100 border border-amber-300 px-2.5 py-1.5 rounded-lg">' +
+            '<span class="material-icons text-sm">pause_circle</span> Paused</span>';
+    }
+    if (canPause) {
+        if (s.paused) {
+            html += '<button onclick="resumeAuction()" class="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg font-bold bg-uber-green text-white hover:opacity-90">' +
+                '<span class="material-icons text-sm">play_arrow</span> Resume</button>';
+        } else {
+            html += '<button onclick="pauseAuction()" class="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg font-bold border border-[var(--border)] hover:bg-[var(--bg-elevated)]">' +
+                '<span class="material-icons text-sm">pause</span> Pause</button>';
+        }
+    }
+    if (!(s.room_mode && s.room && !s.room.is_host)) {
+        html += '<button onclick="resetAuction()" class="text-xs px-3 py-1.5 rounded-lg border border-[var(--border)] hover:bg-[var(--bg-elevated)]">Reset auction</button>';
+    }
+    html += '</div>';
     html += '</div>';
     html += '<div class="h-1.5 rounded-full bg-[var(--bg-elevated)] mb-6"><div class="h-1.5 rounded-full bg-auction-gold" style="width:' + progressPct + '%"></div></div>';
+    if (s.paused) {
+        html += '<div class="mb-4 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 px-4 py-3 text-sm font-semibold flex items-center gap-2">' +
+            '<span class="material-icons text-base">pause_circle</span> Auction paused — bidding and the bid clock are frozen' +
+            (canPause ? '' : ' (waiting on host)') + '</div>';
+    }
 
     html += '<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">';
 
@@ -238,26 +278,31 @@ function render() {
         html += '<div class="text-2xl sm:text-3xl font-bold">' + money(s.next_min_bid) + '</div>';
         html += '<div class="text-sm text-[var(--text-secondary)] mt-1">Step ' + money(s.bid_increment) + '</div>';
         html += '</div>';
-        html += '<div class="rounded-xl p-4 flex flex-col justify-center gap-2 ' +
-            (bid.team_id ? 'bg-orange-700 text-white' : 'bg-slate-600 text-white') + '">';
         const canHammer = !(s.room_mode && s.room && !s.room.is_host);
+        const secsLeft = timerSecondsLeft(s);
+        const urgent = secsLeft != null && secsLeft <= 5;
+        html += '<div class="rounded-xl p-4 flex flex-col justify-center gap-2 ' +
+            (urgent ? 'bg-red-700 text-white' : (bid.team_id ? 'bg-orange-700 text-white' : 'bg-slate-600 text-white')) + '">';
+        html += '<div class="text-[0.65rem] uppercase tracking-wider opacity-90 text-center">' +
+            (s.paused ? 'Paused clock' : 'Bid clock') + '</div>';
+        html += '<div id="bid-timer-display" class="text-4xl sm:text-5xl font-black text-center leading-none tabular-nums">' +
+            formatTimer(secsLeft) + '</div>';
         if (bid.team_id) {
-            if (canHammer) {
-                html += '<button onclick="sellPlayer()" class="w-full inline-flex items-center justify-center gap-2 px-3 py-3 rounded-lg text-sm font-black tracking-wide bg-white text-orange-800 hover:bg-orange-50">' +
-                    '<span class="material-icons text-xl">gavel</span> HAMMER · SOLD</button>';
-                html += '<div class="text-[0.7rem] text-center opacity-90">Sell to ' + escapeHtml(bid.team_name) + ' @ ' + money(bid.amount) + '</div>';
+            html += '<div class="text-[0.7rem] text-center opacity-95">No raise → SOLD to ' +
+                escapeHtml(bid.team_name) + ' @ ' + money(bid.amount) + '</div>';
+        } else {
+            html += '<div class="text-[0.7rem] text-center opacity-95">No bid → UNSOLD at 0</div>';
+        }
+        if (canHammer) {
+            if (bid.team_id) {
+                html += '<button onclick="sellPlayer()" class="w-full inline-flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-[0.7rem] font-bold bg-white/15 hover:bg-white/25 border border-white/30">' +
+                    '<span class="material-icons text-sm">gavel</span> Sell now</button>';
             } else {
-                html += '<div class="text-center text-sm font-bold">Waiting on host hammer</div>';
-                html += '<div class="text-[0.7rem] text-center opacity-90">' + escapeHtml(bid.team_name) + ' @ ' + money(bid.amount) + '</div>';
+                html += '<button onclick="unsoldPlayer()" class="w-full inline-flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-[0.7rem] font-bold bg-white/15 hover:bg-white/25 border border-white/30">' +
+                    '<span class="material-icons text-sm">block</span> Unsold now</button>';
             }
         } else {
-            if (canHammer) {
-                html += '<button onclick="unsoldPlayer()" class="w-full inline-flex items-center justify-center gap-2 px-3 py-3 rounded-lg text-sm font-black tracking-wide bg-white text-slate-800 hover:bg-slate-100">' +
-                    '<span class="material-icons text-xl">block</span> UNSOLD</button>';
-                html += '<div class="text-[0.7rem] text-center opacity-90">No bids — pass this player</div>';
-            } else {
-                html += '<div class="text-center text-sm opacity-90">Host will mark UNSOLD if needed</div>';
-            }
+            html += '<div class="text-[0.65rem] text-center opacity-80">Auto-resolves when clock hits 0</div>';
         }
         html += '</div></div>';
     } else {
@@ -273,7 +318,7 @@ function render() {
         html += '<button onclick="runCpuRound(true)" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border border-indigo-300 text-indigo-700 bg-indigo-50 hover:bg-indigo-100">' +
             '<span class="material-icons text-sm">smart_toy</span> Let CPUs bid</button>';
         html += '</div>';
-        html += '<p class="text-xs text-[var(--text-muted)] mb-3">You bid for your team. CPUs bid automatically on each new player (or tap the button). Then hammer <strong>SOLD</strong> / <strong>UNSOLD</strong>.</p>';
+        html += '<p class="text-xs text-[var(--text-muted)] mb-3">You bid for your team. CPUs bid automatically on each new player (or tap the button). Bids reset the 15s clock; at 0 the lot sells or goes unsold.</p>';
     } else {
         html += '<h3 class="text-sm font-semibold mb-3">Who is bidding?</h3>';
     }
@@ -328,12 +373,21 @@ function render() {
             v.toFixed(1) + ' Cr</button>';
     });
     html += '</div>';
-    html += '<p class="text-xs text-[var(--text-muted)]">Bid or jump here. Use <strong>HAMMER · SOLD</strong> / <strong>UNSOLD</strong> on the player card above.</p>';
+    html += '<p class="text-xs text-[var(--text-muted)]">Bid or jump here. Each bid resets the 15s clock. At 0 → sold to highest bidder, or unsold.</p>';
     html += '</div>';
 
     // Recent
     html += '<div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-5">';
-    html += '<h3 class="text-sm font-semibold mb-3">Recent</h3>';
+    html += '<div class="flex items-center justify-between gap-2 mb-3">';
+    html += '<h3 class="text-sm font-semibold">Recent</h3>';
+    const canUndo = !!s.can_undo && !(s.room_mode && s.room && !s.room.is_host);
+    if (canUndo) {
+        html += '<button onclick="undoLast()" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold border border-amber-400 text-amber-800 bg-amber-50 hover:bg-amber-100">' +
+            '<span class="material-icons text-sm">undo</span> Undo last</button>';
+    } else if (s.can_undo && s.room_mode) {
+        html += '<span class="text-[0.65rem] text-[var(--text-muted)]">Host can undo</span>';
+    }
+    html += '</div>';
     const recent = (s.history || []).slice().reverse().slice(0, 8);
     if (!recent.length) {
         html += '<p class="text-sm text-[var(--text-muted)]">Nothing yet.</p>';
@@ -431,7 +485,142 @@ function selectTeam(id) {
     render();
 }
 
+
+function timerSecondsLeft(s) {
+    if (!s || s.status !== 'auction') return null;
+    if (s.paused) {
+        return s.bid_seconds_left != null ? Number(s.bid_seconds_left) : null;
+    }
+    if (!s.bid_ends_at) return null;
+    return Math.max(0, s.bid_ends_at - (Date.now() / 1000));
+}
+
+function formatTimer(secs) {
+    if (secs == null || isNaN(secs)) return '—';
+    const n = Math.ceil(secs);
+    return String(n);
+}
+
+function startLocalBidClock() {
+    if (LOCAL_CLOCK) clearInterval(LOCAL_CLOCK);
+    LOCAL_CLOCK = setInterval(function() {
+        const el = document.getElementById('bid-timer-display');
+        if (!STATE || !el) return;
+        if (STATE.paused) {
+            const frozen = STATE.bid_seconds_left;
+            if (frozen != null) el.textContent = formatTimer(frozen);
+            return;
+        }
+        const left = timerSecondsLeft(STATE);
+        if (left == null) return;
+        el.textContent = formatTimer(left);
+        if (left <= 5) {
+            el.parentElement && el.parentElement.classList.add('bg-red-700');
+        }
+        if (left <= 0) {
+            tickAuction();
+        }
+    }, 200);
+}
+
+async function tickAuction() {
+    if (TICK_IN_FLIGHT) return;
+    if (!STATE || STATE.status !== 'auction' || STATE.paused) return;
+    const left = timerSecondsLeft(STATE);
+    if (left != null && left > 0) return;
+    TICK_IN_FLIGHT = true;
+    try {
+        const data = await fetchJSON('/api/tick', {
+            method: 'POST',
+            body: JSON.stringify(roomPayload({})),
+        });
+        const prev = LAST_HISTORY_LEN;
+        STATE = data.state;
+        LAST_HISTORY_LEN = (STATE.history || []).length;
+        if (prev != null && LAST_HISTORY_LEN > prev) {
+            const last = (STATE.history || []).slice(-1)[0];
+            if (last && last.outcome === 'sold') {
+                toast('SOLD! ' + last.player_name + ' → ' + last.team_name + ' @ ' + money(last.price));
+            } else if (last && last.outcome === 'unsold') {
+                toast('Unsold: ' + last.player_name);
+            }
+            LAST_CPU_PLAYER_ID = null;
+        }
+        if (STATE.status === 'finished') {
+            window.location.href = BASE_PATH + '/results';
+            return;
+        }
+        if (STATE.solo_mode && STATE.human_team_id) SELECTED_TEAM = STATE.human_team_id;
+        render();
+        await maybeAutoCpuRound();
+    } catch (e) {
+        // ignore transient tick races
+    } finally {
+        TICK_IN_FLIGHT = false;
+    }
+}
+
+
+async function pauseAuction() {
+    if (STATE.room_mode && STATE.room && !STATE.room.is_host) {
+        toast('Only the host can pause', true);
+        return;
+    }
+    try {
+        const data = await fetchJSON('/api/pause', {
+            method: 'POST',
+            body: JSON.stringify(roomPayload({ paused: true })),
+        });
+        STATE = data.state;
+        LAST_HISTORY_LEN = (STATE.history || []).length;
+        toast('Auction paused');
+        render();
+    } catch (e) { toast(e.message, true); }
+}
+
+async function resumeAuction() {
+    if (STATE.room_mode && STATE.room && !STATE.room.is_host) {
+        toast('Only the host can resume', true);
+        return;
+    }
+    try {
+        const data = await fetchJSON('/api/pause', {
+            method: 'POST',
+            body: JSON.stringify(roomPayload({ paused: false })),
+        });
+        STATE = data.state;
+        LAST_HISTORY_LEN = (STATE.history || []).length;
+        toast('Auction resumed — clock running');
+        render();
+        await maybeAutoCpuRound();
+    } catch (e) { toast(e.message, true); }
+}
+
+async function undoLast() {
+    if (STATE.room_mode && STATE.room && !STATE.room.is_host) {
+        toast('Only the host can undo', true);
+        return;
+    }
+    if (!confirm('Undo the last sold / unsold result?')) return;
+    try {
+        const data = await fetchJSON('/api/undo', {
+            method: 'POST',
+            body: JSON.stringify(roomPayload({})),
+        });
+        STATE = data.state;
+        LAST_HISTORY_LEN = (STATE.history || []).length;
+        LAST_CPU_PLAYER_ID = null;
+        toast('Undone — player is back on the block');
+        if (STATE.solo_mode && STATE.human_team_id) SELECTED_TEAM = STATE.human_team_id;
+        else SELECTED_TEAM = null;
+        render();
+    } catch (e) {
+        toast(e.message, true);
+    }
+}
+
 async function placeBid() {
+    if (STATE && STATE.paused) { toast('Auction is paused', true); return; }
     if (!SELECTED_TEAM) {
         toast('Select a bidding team first', true);
         return;
@@ -447,10 +636,12 @@ async function placeBid() {
         if (STATE.solo_mode) await runCpuRound(false);
     } catch (e) {
         toast(e.message, true);
+        if (/timer expired|Bidding closed/i.test(e.message || '')) await refresh();
     }
 }
 
 async function placeBidAmount(amount) {
+    if (STATE && STATE.paused) { toast('Auction is paused', true); return; }
     if (!SELECTED_TEAM) {
         toast('Select a bidding team first', true);
         return;
@@ -471,6 +662,7 @@ async function placeBidAmount(amount) {
         if (STATE.solo_mode) await runCpuRound(false);
     } catch (e) {
         toast(e.message, true);
+        if (/timer expired|Bidding closed/i.test(e.message || '')) await refresh();
     }
 }
 
@@ -504,6 +696,7 @@ async function sellPlayer() {
         STATE = data.state;
         const last = (STATE.history || []).slice(-1)[0];
         if (last) toast('SOLD! ' + last.player_name + ' to ' + last.team_name + ' for ' + money(last.price));
+        LAST_HISTORY_LEN = (STATE.history || []).length;
         if (STATE.status === 'finished') {
             window.location.href = BASE_PATH + '/results';
             return;
@@ -529,6 +722,7 @@ async function unsoldPlayer() {
         STATE = data.state;
         const last = (STATE.history || []).slice(-1)[0];
         if (last) toast('Unsold: ' + last.player_name);
+        LAST_HISTORY_LEN = (STATE.history || []).length;
         if (STATE.status === 'finished') {
             window.location.href = BASE_PATH + '/results';
             return;

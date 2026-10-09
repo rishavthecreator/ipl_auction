@@ -172,7 +172,10 @@ def public_room(state: Dict[str, Any], client_id: str = '') -> Dict[str, Any]:
 
 def get_room_state(code: str, client_id: str = '') -> Dict[str, Any]:
     with _room_lock:
-        return public_room(load_room(code), client_id)
+        state = load_room(code)
+        if auction_svc.ensure_bid_timer(state):
+            save_room(code, state)
+        return public_room(state, client_id)
 
 
 def configure_and_start(

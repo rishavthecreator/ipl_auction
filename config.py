@@ -33,6 +33,8 @@ class Config:
 
     TEAM_BUDGET = 100.0
     BID_INCREMENT = 0.5
+    BID_TIMER_SECONDS = 15  # auto sell/unsold when timer hits 0
+    UNDO_STACK_MAX = 30
     MIN_SQUAD_SIZE = 15
     MAX_SQUAD_SIZE = 20
     SQUAD_SIZE = 20  # alias for max

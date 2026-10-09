@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="min-h-[calc(100dvh-7.5rem)] flex items-center justify-center px-1">
-    <div class="w-full max-w-xl sm:max-w-2xl mx-auto space-y-4">
+    <div class="w-full max-w-xl sm:max-w-6xl mx-auto space-y-4">
         <div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4 sm:p-6 shadow-sm">
             <div class="flex items-center justify-center gap-2 mb-5 text-[0.7rem] uppercase tracking-wider text-[var(--text-muted)]" id="step-dots"></div>
             <div id="wizard-body"></div>
@@ -26,6 +26,7 @@ let NUM_TEAMS = 4;
 let TEAM_NAMES = {};  // {1: 'MI', ...} survives wizard re-renders
 let POOL_SEED = null;
 let READY_POOL = null;
+let TIMER_ENABLED = true;
 let PLAYERS_META = null;
 let ROOM_CODE = localStorage.getItem('ipl_room_code') || '';
 let CLIENT_ID = localStorage.getItem('ipl_client_id') || '';
@@ -74,10 +75,12 @@ function renderWizard() {
     else if (PLAY_MODE === 'join_room' && STEP >= 3) { body.innerHTML = stepLobby(); startLobbyPoll(); }
     else if (STEP === 2) body.innerHTML = stepPool();
     else if (STEP === 3 && (PLAY_MODE === 'multi_local' || PLAY_MODE === 'multi_room')) body.innerHTML = stepTeams();
-    else if (PLAY_MODE === 'multi_room' && STEP >= 4) body.innerHTML = stepRoomHost();
-    else {
+    else if (PLAY_MODE === 'multi_room' && STEP >= 4) {
+        body.innerHTML = stepRoomHost();
+        if (AUCTION_MODE) loadReadyPool();
+    } else {
         body.innerHTML = stepReady();
-        if (AUCTION_MODE === 'standard') loadReadyPool();
+        if (AUCTION_MODE) loadReadyPool();
     }
 }
 
@@ -178,7 +181,6 @@ function stepTeams() {
 function stepReady() {
     const solo = PLAY_MODE === 'solo';
     const teams = solo ? 2 : NUM_TEAMS;
-    const shuffled = AUCTION_MODE === 'standard';
     const yearLabel = (function() {
         if (AUCTION_MODE !== 'all_stars') return '';
         const o = ((ALL_STARS_OPTS && ALL_STARS_OPTS.options) || []).find(function(x) { return x.key === AUCTION_YEAR; });
@@ -187,25 +189,23 @@ function stepReady() {
     let html = '<div class="text-center mb-4">' +
         '<h2 class="display-font text-2xl sm:text-3xl text-[var(--accent)] mb-1">READY</h2>' +
         '</div>' +
+
         '<div class="rounded-xl bg-[var(--bg-elevated)] p-4 text-sm space-y-2 mb-4">' +
         '<div><strong>Mode:</strong> ' + (solo ? 'Single player' : 'Multiplayer (local)') + '</div>' +
         '<div><strong>Pool:</strong> ' + (AUCTION_MODE === 'all_stars' ? ('All Stars · ' + escapeHtml(yearLabel)) : 'Shuffled IPL') + '</div>' +
-        (AUCTION_MODE === 'all_stars' ? '<div><strong>Base prices:</strong> 25 core stars (Classic) or top sold (year) @ 2 Cr · others @ 1 Cr</div>' : '') +
-        '<div><strong>Teams:</strong> ' + teams + '</div></div>';
-    if (shuffled) {
-        html += '<div class="flex items-center justify-between gap-2 mb-2">' +
-            '<h3 class="text-sm font-bold">Auction list</h3>' +
-            '<button type="button" onclick="reshufflePool()" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-bold hover:border-auction-gold">' +
-            '<span class="material-icons text-sm">shuffle</span> Reshuffle</button></div>' +
-            '<p class="text-xs text-[var(--text-muted)] mb-2">Full order for this shuffle. Reshuffle draws a new pool; Start uses this list.</p>' +
-            '<div id="ready-pool" class="max-h-80 overflow-y-auto rounded-xl border border-[var(--border)] p-3 mb-4 text-sm"></div>';
-    } else {
-        html += '<ol class="text-xs text-[var(--text-secondary)] space-y-1.5 list-decimal list-inside mb-5">' +
-            '<li>Order: Marquee → Capped → Uncapped (Batter → WK → AR → Bowler)</li>' +
-            '<li>Bid, then hammer SOLD / UNSOLD</li>' +
-            '<li>Use Auction roadmap to peek ahead</li></ol>';
-    }
-    html += navRow(true, false) +
+        (AUCTION_MODE === 'all_stars' ? '<div><strong>Base prices:</strong> top 25 @ 2 Cr · others @ 1 Cr</div>' : '') +
+        '<div><strong>Teams:</strong> ' + teams + '</div></div>' +
+        timerChoiceHtml() +
+        '<div class="flex items-center justify-between gap-2 mb-2 mt-4">' +
+        '<h3 class="text-sm font-bold">Complete auction pool</h3>' +
+        (AUCTION_MODE === 'standard'
+            ? ('<button type="button" onclick="reshufflePool()" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-bold hover:border-auction-gold">' +
+               '<span class="material-icons text-sm">shuffle</span> Reshuffle</button>')
+            : '') +
+        '</div>' +
+        '<p class="text-xs text-[var(--text-muted)] mb-2">Every player in this auction, in order. Scroll the list — Start uses this exact pool.</p>' +
+        '<div id="ready-pool" class="rounded-xl border border-[var(--border)] p-3 mb-4 text-sm bg-[var(--bg-page)] max-h-[min(70vh,720px)] overflow-y-auto"></div>' +
+        navRow(true, false) +
         '<button onclick="startLocalAuction()" class="w-full mt-3 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-auction-gold text-slate-900 font-bold text-sm">' +
         '<span class="material-icons text-base">gavel</span> Start Auction</button>';
     return html;
@@ -214,23 +214,41 @@ function stepReady() {
 function renderPoolList(data) {
     const groups = data.by_tier_role || [];
     const labels = data.role_labels || {};
+    const players = data.players || [];
     let n = 0;
-    let html = '<p class="text-xs text-[var(--text-muted)] mb-2">' + (data.pool_size || 0) + ' players · seed ' + (data.pool_seed || '') + '</p>';
-    groups.forEach(function(g) {
-        html += '<div class="mb-3">' +
-            '<div class="text-[0.65rem] uppercase tracking-wider font-bold text-auction-gold mb-1">' +
-            escapeHtml(g.tier_label) + ' · ' + escapeHtml(g.label) + ' (' + g.count + ')</div>';
-        (g.players || []).forEach(function(p) {
+    let html = '<div class="flex flex-wrap items-center justify-between gap-2 mb-3 sticky top-0 bg-[var(--bg-page)] py-1 z-10">' +
+        '<p class="text-xs text-[var(--text-muted)]"><strong class="text-[var(--text-primary)]">' + (data.pool_size || players.length || 0) +
+        '</strong> players' + (data.pool_seed != null ? (' · seed ' + data.pool_seed) : '') + '</p>' +
+        '<p class="text-[0.65rem] text-[var(--text-muted)]">Marquee → Capped → Uncapped · Batter → WK → AR → Bowler</p></div>';
+    if (!groups.length && players.length) {
+        html += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-1">';
+        players.forEach(function(p) {
             n += 1;
-            html += '<div class="flex items-center gap-2 py-0.5">' +
-                '<span class="text-[var(--text-muted)] w-6 text-right tabular-nums text-xs">' + n + '</span>' +
-                '<span class="font-medium">' + escapeHtml(p.name) + '</span>' +
-                '<span class="text-[0.65rem] px-1.5 py-0.5 rounded ' + roleClass(p.role) + '">' + escapeHtml(roleLabel(p.role, labels)) + '</span>' +
-                '<span class="ml-auto text-xs text-[var(--text-muted)]">' + money(p.base_price) + '</span></div>';
+            html += poolPlayerRow(n, p, labels);
         });
         html += '</div>';
+        return html;
+    }
+    groups.forEach(function(g) {
+        html += '<div class="mb-4">' +
+            '<div class="text-[0.65rem] uppercase tracking-wider font-bold text-auction-gold mb-2 border-b border-[var(--border)] pb-1">' +
+            escapeHtml(g.tier_label) + ' · ' + escapeHtml(g.label) + ' (' + g.count + ')</div>' +
+            '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-1">';
+        (g.players || []).forEach(function(p) {
+            n += 1;
+            html += poolPlayerRow(n, p, labels);
+        });
+        html += '</div></div>';
     });
     return html;
+}
+
+function poolPlayerRow(n, p, labels) {
+    return '<div class="flex items-center gap-2 py-1 min-w-0 border-b border-[var(--border)]/60">' +
+        '<span class="text-[var(--text-muted)] w-7 shrink-0 text-right tabular-nums text-[0.7rem]">' + n + '</span>' +
+        '<span class="font-medium text-sm truncate" title="' + escapeAttr(p.name) + '">' + escapeHtml(p.name) + '</span>' +
+        '<span class="text-[0.6rem] px-1.5 py-0.5 rounded shrink-0 ' + roleClass(p.role) + '">' + escapeHtml(roleLabel(p.role, labels)) + '</span>' +
+        '<span class="ml-auto shrink-0 text-xs text-[var(--text-muted)] tabular-nums">' + money(p.base_price) + '</span></div>';
 }
 
 async function loadReadyPool() {
@@ -238,7 +256,10 @@ async function loadReadyPool() {
     if (!el) return;
     const solo = PLAY_MODE === 'solo';
     const teams = solo ? 2 : NUM_TEAMS;
-    if (READY_POOL && READY_POOL.num_teams === teams && READY_POOL.auction_mode === 'standard' &&
+    const mode = AUCTION_MODE || 'standard';
+    const year = mode === 'all_stars' ? AUCTION_YEAR : null;
+    if (READY_POOL && READY_POOL.num_teams === teams && READY_POOL.auction_mode === mode &&
+        (mode !== 'all_stars' || READY_POOL.auction_year === year) &&
         (POOL_SEED == null || READY_POOL.pool_seed === POOL_SEED)) {
         el.innerHTML = renderPoolList(READY_POOL);
         POOL_SEED = READY_POOL.pool_seed;
@@ -246,8 +267,9 @@ async function loadReadyPool() {
     }
     showLoading(el);
     try {
-        const q = new URLSearchParams({ num_teams: String(teams), mode: 'standard' });
+        const q = new URLSearchParams({ num_teams: String(teams), mode: mode });
         if (POOL_SEED != null) q.set('seed', String(POOL_SEED));
+        if (year) q.set('auction_year', String(year));
         const data = await fetchJSON('/api/preview-pool?' + q.toString());
         POOL_SEED = data.pool_seed;
         READY_POOL = data;
@@ -265,6 +287,27 @@ function reshufflePool() {
     if (el) showLoading(el);
     return loadReadyPool();
 }
+
+function timerChoiceHtml() {
+    return '<div class="rounded-xl border border-[var(--border)] p-4 mb-4">' +
+        '<div class="text-sm font-bold mb-1">Bid timer (15 seconds)</div>' +
+        '<p class="text-xs text-[var(--text-muted)] mb-3">If Yes: no bid → unsold, highest bid wins after 15s with no raise. If No: host/players hammer SOLD / UNSOLD manually.</p>' +
+        '<div class="flex flex-wrap gap-2">' +
+        '<button type="button" onclick="chooseTimer(true)" class="px-4 py-2 rounded-lg text-sm font-bold border ' +
+        (TIMER_ENABLED ? 'border-auction-gold bg-amber-50 text-amber-900' : 'border-[var(--border)] hover:border-auction-gold') +
+        '">Yes — use timer</button>' +
+        '<button type="button" onclick="chooseTimer(false)" class="px-4 py-2 rounded-lg text-sm font-bold border ' +
+        (!TIMER_ENABLED ? 'border-auction-gold bg-amber-50 text-amber-900' : 'border-[var(--border)] hover:border-auction-gold') +
+        '">No — manual hammer</button>' +
+        '</div></div>';
+}
+
+function chooseTimer(on) {
+    TIMER_ENABLED = !!on;
+    // Re-render current step without resetting pool cache
+    renderWizard();
+}
+
 
 function stepJoin() {
     return '<div class="text-center mb-4"><h2 class="display-font text-2xl sm:text-3xl text-[var(--accent)] mb-1">JOIN ROOM</h2></div>' +
@@ -290,11 +333,21 @@ function stepRoomHost() {
     return '<div class="text-center mb-4"><h2 class="display-font text-2xl sm:text-3xl text-[var(--accent)] mb-1">YOUR ROOM</h2></div>' +
         '<label class="text-xs text-[var(--text-muted)]">Host display name</label>' +
         '<input id="host-name" type="text" value="' + escapeAttr(PLAYER_NAME || 'Host') + '" class="w-full mt-0.5 mb-4 px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--bg-page)] text-sm" />' +
-        '<p class="text-xs text-[var(--text-secondary)] mb-3">Create a code, share it, then start. Friends use <strong>Join a room</strong> on their devices.</p>' +
+        '<p class="text-xs text-[var(--text-secondary)] mb-3">Create a code, share it, review the full pool, then start. Friends use <strong>Join a room</strong>.</p>' +
         (ROOM_CODE
             ? ('<div class="rounded-xl bg-[var(--bg-elevated)] p-4 mb-4 text-center">' +
                '<div class="text-xs text-[var(--text-muted)] mb-1">Share this code</div>' +
                '<div class="display-font text-4xl tracking-widest text-auction-gold">' + escapeHtml(ROOM_CODE) + '</div></div>' +
+               timerChoiceHtml() +
+               '<div class="flex items-center justify-between gap-2 mb-2">' +
+               '<h3 class="text-sm font-bold">Complete auction pool</h3>' +
+               (AUCTION_MODE === 'standard'
+                   ? ('<button type="button" onclick="reshufflePool()" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-bold hover:border-auction-gold">' +
+                      '<span class="material-icons text-sm">shuffle</span> Reshuffle</button>')
+                   : '') +
+               '</div>' +
+               '<p class="text-xs text-[var(--text-muted)] mb-2">Everyone sees this same pool once you start.</p>' +
+               '<div id="ready-pool" class="rounded-xl border border-[var(--border)] p-3 mb-4 text-sm bg-[var(--bg-page)] max-h-[min(70vh,720px)] overflow-y-auto"></div>' +
                '<button onclick="startRoomAuction()" class="w-full px-4 py-3 rounded-lg bg-auction-gold text-slate-900 font-bold text-sm">Start auction for room</button>')
             : '<button onclick="createRoom()" class="w-full px-4 py-3 rounded-lg bg-auction-navy text-white font-bold text-sm">Create room code</button>') +
         '<div class="mt-3">' + navRow(true, false) + '</div>';
@@ -384,6 +437,7 @@ async function startLocalAuction() {
                 auction_year: AUCTION_MODE === 'all_stars' ? AUCTION_YEAR : null,
                 solo_mode: solo,
                 human_team_id: null,
+                timer_enabled: TIMER_ENABLED,
             }),
         });
         window.location.href = BASE_PATH + '/auction';
@@ -421,6 +475,7 @@ async function startRoomAuction() {
                 seed: POOL_SEED,
                 mode: AUCTION_MODE || 'standard',
                 auction_year: AUCTION_MODE === 'all_stars' ? AUCTION_YEAR : null,
+                timer_enabled: TIMER_ENABLED,
             }),
         });
         window.location.href = BASE_PATH + '/auction?room=' + encodeURIComponent(ROOM_CODE);

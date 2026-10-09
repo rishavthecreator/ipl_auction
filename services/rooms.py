@@ -186,6 +186,7 @@ def configure_and_start(
     seed,
     mode: str,
     auction_year=None,
+    timer_enabled: bool = True,
 ) -> Dict[str, Any]:
     code = normalize_code(code)
     with _room_lock:
@@ -204,6 +205,7 @@ def configure_and_start(
                     mode=mode or 'standard',
                     solo_mode=False,
                     auction_year=auction_year,
+                    timer_enabled=timer_enabled,
                 )
                 new_state = deepcopy(auction_svc._state)
             finally:

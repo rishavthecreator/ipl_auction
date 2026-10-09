@@ -116,6 +116,8 @@ def rooms_start():
     try:
         seed = payload.get('seed')
         seed_i = int(seed) if seed not in (None, '') else None
+        timer_raw = payload.get('timer_enabled', True)
+        timer_enabled = False if timer_raw in (False, 0, '0', 'false', 'False', 'no', 'No') else True
         pub = rooms_svc.configure_and_start(
             code=payload.get('room_code') or '',
             host_client_id=_client_id(),
@@ -124,6 +126,7 @@ def rooms_start():
             seed=seed_i,
             mode=payload.get('mode') or 'standard',
             auction_year=payload.get('auction_year'),
+            timer_enabled=timer_enabled,
         )
         return jsonify({'ok': True, 'state': pub})
     except (TypeError, ValueError) as e:
@@ -145,6 +148,8 @@ def start():
         human_team_id = payload.get('human_team_id')
         if human_team_id is not None:
             human_team_id = int(human_team_id)
+        timer_raw = payload.get('timer_enabled', True)
+        timer_enabled = False if timer_raw in (False, 0, '0', 'false', 'False', 'no', 'No') else True
         auction_svc.start_auction(
             num_teams,
             team_names,
@@ -153,6 +158,7 @@ def start():
             solo_mode=solo_mode,
             human_team_id=human_team_id,
             auction_year=payload.get('auction_year'),
+            timer_enabled=timer_enabled,
         )
         return jsonify({'ok': True, 'state': auction_svc.get_public_state()})
     except (TypeError, ValueError) as e:

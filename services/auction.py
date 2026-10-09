@@ -239,6 +239,7 @@ def _empty_state() -> Dict[str, Any]:
         'undo_stack': [],
         'paused': False,
         'bid_remaining_on_pause': None,
+        'timer_enabled': True,
     }
 
 
@@ -275,6 +276,7 @@ def get_state() -> Dict[str, Any]:
                 _state.setdefault('undo_stack', [])
                 _state.setdefault('paused', False)
                 _state.setdefault('bid_remaining_on_pause', None)
+                _state.setdefault('timer_enabled', True)
             else:
                 _state = _empty_state()
         return deepcopy(_state)
@@ -1006,6 +1008,7 @@ def start_auction(
     solo_mode: bool = False,
     human_team_id: Optional[int] = None,
     auction_year: Optional[Any] = None,
+    timer_enabled: bool = True,
 ) -> Dict[str, Any]:
     mode = _normalize_mode(mode)
     year_key = _normalize_auction_year(auction_year) if mode == 'all_stars' else None
@@ -1099,11 +1102,15 @@ def start_auction(
         'undo_stack': [],
         'paused': False,
         'bid_remaining_on_pause': None,
+        'timer_enabled': bool(timer_enabled),
     }
     if solo_mode:
         from services.cpu_bots import attach_cpu_profiles
         attach_cpu_profiles(state)
-    _arm_bid_timer(state)
+    if state.get('timer_enabled', True):
+        _arm_bid_timer(state)
+    else:
+        state['bid_ends_at'] = None
     with _lock:
         _save(state)
         return deepcopy(state)
@@ -1192,6 +1199,9 @@ def _arm_bid_timer(state: Dict[str, Any]) -> None:
     if state.get('status') != 'auction' or _current_player(state) is None:
         state['bid_ends_at'] = None
         return
+    if not state.get('timer_enabled', True):
+        state['bid_ends_at'] = None
+        return
     if state.get('paused'):
         state['bid_ends_at'] = None
         return
@@ -1211,6 +1221,8 @@ def _push_undo(state: Dict[str, Any]) -> None:
 def resolve_bid_timer(state: Dict[str, Any]) -> bool:
     """If the bid timer has expired, sell or mark unsold. Returns True if resolved."""
     if state.get('status') != 'auction':
+        return False
+    if not state.get('timer_enabled', True):
         return False
     if state.get('paused'):
         return False
@@ -1238,8 +1250,10 @@ def ensure_bid_timer(state: Dict[str, Any]) -> bool:
         return True
     if (
         state.get('status') == 'auction'
+        and state.get('timer_enabled', True)
         and _current_player(state) is not None
         and state.get('bid_ends_at') is None
+        and not state.get('paused')
     ):
         _arm_bid_timer(state)
         return True
@@ -1794,6 +1808,7 @@ def _public_state(state: Dict[str, Any]) -> Dict[str, Any]:
         'can_undo': bool(state.get('undo_stack')),
         'paused': bool(state.get('paused')),
         'bid_remaining_on_pause': state.get('bid_remaining_on_pause'),
+        'timer_enabled': bool(state.get('timer_enabled', True)),
         'base_prices': {
             'marquee': float(current_app.config['BASE_PRICE_MARQUEE']),
             'capped': float(current_app.config['BASE_PRICE_CAPPED']),

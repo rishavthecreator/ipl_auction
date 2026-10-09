@@ -127,7 +127,67 @@ async function runCpuRound(showEmptyToast) {
     }
 }
 
-function render() {
+
+
+function stateRenderSignature(st) {
+    if (!st) return '';
+    try {
+        return JSON.stringify({
+            status: st.status,
+            paused: st.paused,
+            timer_enabled: st.timer_enabled,
+            current_index: st.current_index,
+            round: st.round,
+            bid: st.current_bid,
+            sold_count: st.sold_count,
+            unsold_count: st.unsold_count,
+            can_undo: st.can_undo,
+            bid_ends_at: st.bid_ends_at,
+            teams: (st.teams || []).map(function(t) {
+                return {
+                    id: t.id, spent: t.spent, remaining_budget: t.remaining_budget,
+                    can_bid: t.can_bid, players_count: (t.players || []).length,
+                    overseas_count: t.overseas_count,
+                    // include last player id so buys refresh list
+                    last: (t.players && t.players.length) ? t.players[t.players.length - 1].id : null,
+                };
+            }),
+            hist: (st.history || []).length,
+            room: st.room ? { is_host: st.room.is_host, my_team_id: st.room.my_team_id, claims: st.room.claims } : null,
+            sel: SELECTED_TEAM,
+            road: ROADMAP_OPEN,
+            squad: SQUAD_OPEN,
+        });
+    } catch (e) { return String(Date.now()); }
+}
+
+let LAST_RENDER_SIG = null;
+
+function captureScrollPositions() {
+    const map = {};
+    document.querySelectorAll('[data-scroll-key]').forEach(function(el) {
+        map[el.getAttribute('data-scroll-key')] = el.scrollTop;
+    });
+    return map;
+}
+
+function restoreScrollPositions(map) {
+    if (!map) return;
+    document.querySelectorAll('[data-scroll-key]').forEach(function(el) {
+        const key = el.getAttribute('data-scroll-key');
+        if (map[key] != null) el.scrollTop = map[key];
+    });
+}
+
+function render(force) {
+    if (!force) {
+        const sig = stateRenderSignature(STATE);
+        if (sig && sig === LAST_RENDER_SIG) return;
+        LAST_RENDER_SIG = sig;
+    } else {
+        LAST_RENDER_SIG = stateRenderSignature(STATE);
+    }
+    const scrolls = captureScrollPositions();
     const s = STATE;
     const p = s.current_player;
     const bid = s.current_bid || {};
@@ -176,8 +236,8 @@ function render() {
     html += '<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">';
 
     // ===== Category tracker / roadmap (left) =====
-    html += '<div class="xl:col-span-3 order-2 xl:order-1">';
-    html += '<div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4 sticky top-20 max-h-[80vh] overflow-y-auto">';
+    html += '<div class="xl:col-span-3 order-2 xl:order-1 min-h-0">';
+    html += '<div id="roadmap-scroll" data-scroll-key="roadmap" class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4 sticky top-20 max-h-[calc(100vh-5.5rem)] overflow-y-auto overscroll-contain touch-pan-y" style="-webkit-overflow-scrolling:touch">';
     html += '<div class="flex items-center justify-between mb-2">';
     html += '<h3 class="text-sm font-bold">Auction roadmap</h3>';
     html += '<span class="text-[0.65rem] text-[var(--text-muted)]">' + (s.remaining_count || 0) + ' left</span>';
@@ -195,7 +255,7 @@ function render() {
                 ? 'border-auction-gold/60 bg-amber-50/40 dark:bg-amber-950/10'
                 : (g.is_past ? 'border-[var(--border)] opacity-55' : 'border-[var(--border)]');
 
-            html += '<div class="mb-1.5 rounded-lg border ' + border + ' overflow-hidden">';
+            html += '<div class="mb-1.5 rounded-lg border ' + border + '">';
             html += '<button type="button" onclick="toggleRoadmap(' + gi + ')" class="w-full flex items-center gap-1.5 px-2 py-1.5 text-left hover:bg-[var(--bg-elevated)]/50">';
             html += '<span class="material-icons text-sm text-[var(--text-muted)]">' + (isOpen ? 'expand_more' : 'chevron_right') + '</span>';
             html += '<div class="min-w-0 flex-1">';
@@ -214,7 +274,7 @@ function render() {
             html += '</button>';
 
             if (isOpen) {
-                html += '<div class="px-2 pb-2 max-h-48 overflow-y-auto space-y-0.5">';
+                html += '<div class="px-2 pb-2 space-y-0.5">';
                 (g.players || []).forEach(pl => {
                     const st = pl.status;
                     if (st === 'current') {
@@ -279,6 +339,31 @@ function render() {
         html += '<div class="text-sm text-[var(--text-secondary)] mt-1">Step ' + money(s.bid_increment) + '</div>';
         html += '</div>';
         const canHammer = !(s.room_mode && s.room && !s.room.is_host);
+        const timerOn = s.timer_enabled !== false;
+        if (!timerOn) {
+            html += '<div class="rounded-xl p-4 flex flex-col justify-center gap-2 ' +
+                (bid.team_id ? 'bg-orange-700 text-white' : 'bg-slate-600 text-white') + '">';
+            html += '<div class="text-[0.65rem] uppercase tracking-wider opacity-90 text-center">Manual hammer</div>';
+            if (bid.team_id) {
+                if (canHammer) {
+                    html += '<button onclick="sellPlayer()" class="w-full inline-flex items-center justify-center gap-2 px-3 py-3 rounded-lg text-sm font-black tracking-wide bg-white text-orange-800 hover:bg-orange-50">' +
+                        '<span class="material-icons text-xl">gavel</span> HAMMER · SOLD</button>';
+                    html += '<div class="text-[0.7rem] text-center opacity-90">Sell to ' + escapeHtml(bid.team_name) + ' @ ' + money(bid.amount) + '</div>';
+                } else {
+                    html += '<div class="text-center text-sm font-bold">Waiting on host hammer</div>';
+                    html += '<div class="text-[0.7rem] text-center opacity-90">' + escapeHtml(bid.team_name) + ' @ ' + money(bid.amount) + '</div>';
+                }
+            } else {
+                if (canHammer) {
+                    html += '<button onclick="unsoldPlayer()" class="w-full inline-flex items-center justify-center gap-2 px-3 py-3 rounded-lg text-sm font-black tracking-wide bg-white text-slate-800 hover:bg-slate-100">' +
+                        '<span class="material-icons text-xl">block</span> UNSOLD</button>';
+                    html += '<div class="text-[0.7rem] text-center opacity-90">No bids — pass this player</div>';
+                } else {
+                    html += '<div class="text-center text-sm opacity-90">Host will mark UNSOLD if needed</div>';
+                }
+            }
+            html += '</div></div>';
+        } else {
         const secsLeft = timerSecondsLeft(s);
         const urgent = secsLeft != null && secsLeft <= 5;
         html += '<div class="rounded-xl p-4 flex flex-col justify-center gap-2 ' +
@@ -305,6 +390,7 @@ function render() {
             html += '<div class="text-[0.65rem] text-center opacity-80">Auto-resolves when clock hits 0</div>';
         }
         html += '</div></div>';
+        }
     } else {
         html += '<div class="text-center py-8">No player on the block.</div>';
     }
@@ -413,15 +499,15 @@ function render() {
     html += '</div>';
 
     // Team squads (dropdown — same pattern as roadmap categories)
-    html += '<div class="xl:col-span-3 order-3 space-y-3">';
-    html += '<div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">';
+    html += '<div class="xl:col-span-3 order-3 space-y-3 min-h-0">';
+    html += '<div id="bought-scroll" data-scroll-key="bought" class="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4 sticky top-20 max-h-[calc(100vh-5.5rem)] overflow-y-auto overscroll-contain touch-pan-y" style="-webkit-overflow-scrolling:touch">';
     html += '<h3 class="text-sm font-bold mb-1">Bought players</h3>';
     html += '<p class="text-[0.65rem] text-[var(--text-muted)] mb-3">Tap a team to see everyone they have bought.</p>';
     s.teams.forEach(t => {
         const tid = t.id;
         const nBought = (t.players || []).length;
         const isOpen = SQUAD_OPEN[tid] === true;
-        html += '<div class="mb-1.5 rounded-lg border border-[var(--border)] overflow-hidden">';
+        html += '<div class="mb-1.5 rounded-lg border border-[var(--border)]">';
         html += '<button type="button" onclick="toggleSquad(' + tid + ')" class="w-full flex items-center gap-1.5 px-2 py-2 text-left hover:bg-[var(--bg-elevated)]/50">';
         html += '<span class="material-icons text-sm text-[var(--text-muted)]">' + (isOpen ? 'expand_more' : 'chevron_right') + '</span>';
         html += '<div class="min-w-0 flex-1">';
@@ -444,7 +530,7 @@ function render() {
             if (!nBought) {
                 html += '<p class="text-xs text-[var(--text-muted)] px-1">No players bought yet.</p>';
             } else {
-                html += '<div class="space-y-0.5 max-h-80 overflow-y-auto">';
+                html += '<div class="space-y-0.5">';
                 t.players.forEach(pl => {
                     const osTag = (pl.country && String(pl.country).toLowerCase() !== 'india')
                         ? ' <span class="text-[0.6rem] text-sky-600">OS</span>' : '';
@@ -465,6 +551,7 @@ function render() {
 
     html += '</div>';
     root.innerHTML = html;
+    restoreScrollPositions(scrolls);
 }
 
 function toggleRoadmap(gi) {
@@ -472,17 +559,17 @@ function toggleRoadmap(gi) {
     const defaultOpen = g && g.is_current;
     const cur = (ROADMAP_OPEN[gi] === true) || (ROADMAP_OPEN[gi] == null && defaultOpen);
     ROADMAP_OPEN[gi] = !cur;
-    render();
+    render(true);
 }
 
 function toggleSquad(teamId) {
     SQUAD_OPEN[teamId] = !SQUAD_OPEN[teamId];
-    render();
+    render(true);
 }
 
 function selectTeam(id) {
     SELECTED_TEAM = id;
-    render();
+    render(true);
 }
 
 
@@ -506,6 +593,7 @@ function startLocalBidClock() {
     LOCAL_CLOCK = setInterval(function() {
         const el = document.getElementById('bid-timer-display');
         if (!STATE || !el) return;
+        if (STATE.timer_enabled === false) return;
         if (STATE.paused) {
             const frozen = STATE.bid_seconds_left;
             if (frozen != null) el.textContent = formatTimer(frozen);
@@ -525,7 +613,7 @@ function startLocalBidClock() {
 
 async function tickAuction() {
     if (TICK_IN_FLIGHT) return;
-    if (!STATE || STATE.status !== 'auction' || STATE.paused) return;
+    if (!STATE || STATE.status !== 'auction' || STATE.paused || STATE.timer_enabled === false) return;
     const left = timerSecondsLeft(STATE);
     if (left != null && left > 0) return;
     TICK_IN_FLIGHT = true;
